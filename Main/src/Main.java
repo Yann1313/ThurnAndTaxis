@@ -1,3 +1,9 @@
+
+import amtsmaenner.*;
+import karten.Karte;
+import karten.KartenDeck;
+import spiel.*;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -6,7 +12,7 @@ import java.awt.*;
  *
  * @author TPE_UIB_01
  */
-public class Main {
+public class Main implements Postillion, Amtsmann, Postmeister, Spielzuege {
     private JButton karte1Button;
     private JButton karte2Button;
     private JButton karte3Button;
@@ -94,5 +100,38 @@ public class Main {
 
     private int map(int x, int in_min, int in_max, int out_min, int out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    }
+
+    @Override
+    public void tauschen() {
+        //TODO
+    }
+
+    @Override
+    public void karteAuspielen() {
+        //TODO
+    }
+
+    @Override
+    public void neuZiehen() {
+        //TODO
+    }
+
+    @Override
+    public Karte ziehen() {
+        //TODO
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Karte auslegen() {
+        //TODO
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public int streckeWeten() {
+        //TODO
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }
