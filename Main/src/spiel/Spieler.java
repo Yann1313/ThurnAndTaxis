@@ -10,11 +10,11 @@ import java.util.LinkedList;
 public class Spieler {
 
     private String name;
-    private String farbe;
+    private Farbe farbe;
     private int punkte;
     private LinkedList<Karte> hand;
 
-    public Spieler(String name, String farbe) {
+    public Spieler(String name, Farbe farbe) {
         this.name = name;
         this.farbe = farbe;
         this.punkte = 0;
@@ -25,11 +25,15 @@ public class Spieler {
         return name;
     }
 
-    public String getFarbe() {
+    public Farbe getFarbe() {
         return farbe;
     }
 
     public int getPunkte() {
         return punkte;
+    }
+
+    public String toString(){
+        return this.name + " - " + this.farbe.name();
     }
 }

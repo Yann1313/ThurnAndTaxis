@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -53,7 +54,10 @@ public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, S
         Handkarten = new JPanel();
         Handkarten.setLayout(null);
         Map<String, Color> colorMap = setColorMap();
+        LinkedList<Spieler> spielerListe = spielerErzeugen();
+
         BufferedImage img = null;
+
         try {
             img = ImageIO.read(new File(Paths.get("Main/src/res/thurnplan.jpg").toAbsolutePath().toString()));
         } catch (IOException e) {
@@ -89,7 +93,7 @@ public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, S
         positionCity(baselButton, 1, 81);
 
         JButton zurichButton = new JButton();
-        positionCity(zurichButton, 12 , 88);
+        positionCity(zurichButton, 12, 88);
 
         JButton kemptenButton = new JButton();
         positionCity(kemptenButton, 31, 76);
@@ -134,6 +138,74 @@ public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, S
         JButton innsbruckButton = new JButton();
         positionCity(innsbruckButton, 43, 88);
 
+    }
+
+    private LinkedList<Spieler> spielerErzeugen() {
+        int anzahl = ermittleSpielerAnzahl();
+        return legeSpielerAn(anzahl);
+    }
+
+    private LinkedList<Spieler> legeSpielerAn(int anzahl) {
+        LinkedList<Spieler> spielerListe = new LinkedList<Spieler>();
+        JComboBox farbBox = farbBoxAnlegen();
+        for (int i = 0; i < anzahl; i++) {
+            String name = spielerNamenEingeben();
+            Farbe farbe = farbeAuswaehlen(farbBox);
+            farbBox.removeItem(farbe);
+            spielerListe.add(new Spieler(name, farbe));
+        }
+        for (Spieler spieler : spielerListe) {
+            System.out.println(spieler);
+        }
+        return spielerListe;
+    }
+
+    private JComboBox farbBoxAnlegen() {
+        DefaultComboBoxModel farbModel = new DefaultComboBoxModel();
+        for (Enum<Farbe> farbe : Farbe.values()) {
+            farbModel.addElement(farbe);
+        }
+        return new JComboBox(farbModel);
+    }
+
+    private Farbe farbeAuswaehlen(JComboBox comboBoxFarbe) {
+        JPanel farbPanel = new JPanel();
+        farbPanel.add(new JLabel("Bitte Farbe auswählen:"));
+        farbPanel.add(comboBoxFarbe);
+        int result = 1;
+
+        while (result != 0) {
+            result = JOptionPane.showConfirmDialog(null, farbPanel, "Farbe auswählen", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        }
+        return (Farbe) (comboBoxFarbe.getSelectedItem());
+    }
+
+    private String spielerNamenEingeben() {
+        JPanel panel = new JPanel();
+        String name = null;
+        while (name == null) {
+            name = JOptionPane.showInputDialog(panel, "Bitte Namen eingeben", null);
+        }
+        return name;
+    }
+
+    private int ermittleSpielerAnzahl() {
+
+        JPanel panel = new JPanel();
+        panel.add(new JLabel("Bitte Spieleranzahl auswählen:"));
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        model.addElement("2");
+        model.addElement("3");
+        model.addElement("4");
+        JComboBox comboBox = new JComboBox(model);
+        panel.add(comboBox);
+
+        int result = 1;
+
+        while (result != 0) {
+            result = JOptionPane.showConfirmDialog(null, panel, "Flavor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        }
+        return Integer.parseInt(comboBox.getSelectedItem().toString());
     }
 
 
