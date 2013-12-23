@@ -17,7 +17,6 @@ public enum Farbe {
     SCHWARZ(new Color(0,0,0)),
     WEIS(new Color(255,255,255));
 
-
     private Color code;
 
     public Color getCode() {

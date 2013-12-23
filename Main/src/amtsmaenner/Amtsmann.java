@@ -1,6 +1,7 @@
 package amtsmaenner;
 
-import java.util.LinkedList;
+import javax.swing.*;
+import java.util.ArrayList;
 
 /**
  * Klasse, welche //TODO: Beschreibung der Klasse
@@ -9,6 +10,6 @@ import java.util.LinkedList;
  */
 public interface Amtsmann {
 
-    public abstract void tauschen();
+    public abstract void tauschen(ArrayList<JButton> auslage);
 
 }

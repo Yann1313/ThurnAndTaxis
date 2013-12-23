@@ -7,10 +7,13 @@ package karten;
  */
 public class Karte {
 
-    private Enum<Stadt> stadt;
-    private String farbe;
-    private Enum<Land> land;
+    private Stadt stadt;
 
+    public Karte(Stadt stadt) {
+        this.stadt = stadt;
+    }
 
-
+    public Stadt getStadt() {
+        return stadt;
+    }
 }

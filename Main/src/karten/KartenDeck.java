@@ -16,11 +16,14 @@ public class KartenDeck extends Stack<Karte> {
         createDeck();
     }
 
-    /**
-     * Methode, welche ein Deck mit 52 Karten erstellt.
-     */
+
     private void createDeck() {
-        //TODO
+        for (Stadt stadt : Stadt.values()) {
+            for (int i = 0; i < 2; i++) {
+                this.add(new Karte(stadt));
+            }
+        }
+        mischen();
     }
 
     private void mischen() {

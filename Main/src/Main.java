@@ -1,16 +1,21 @@
 
 import amtsmaenner.*;
 import karten.Karte;
+import karten.Stadt;
 import spiel.*;
 import swing.ImagePanel;
+import swing.StadtLocator;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -20,7 +25,7 @@ import java.util.Map;
  *
  * @author TPE_UIB_01
  */
-public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, Spielzuege {
+public class Main extends JFrame {
     private JButton karte1Button;
     private JButton karte2Button;
     private JButton karte3Button;
@@ -34,8 +39,23 @@ public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, S
     private JButton kartenstapelButton;
     private JButton ablagestapelButton;
     private JTextPane consoleTextPane;
-    private JPanel Handkarten;
     private JPanel Spielfeld;
+
+
+    public Main() {
+        ActionListener listener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        };
+        karte2Button.addActionListener(listener);
+        karte1Button.addActionListener(listener);
+        karte4Button.addActionListener(listener);
+        karte3Button.addActionListener(listener);
+        karte6Button.addActionListener(listener);
+        karte5Button.addActionListener(listener);
+    }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Main");
@@ -46,18 +66,10 @@ public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, S
         frame.setVisible(true);
     }
 
-    public void paint(Graphics g) {
-        g.drawLine(50, 50, 200, 200);
-    }
 
     private void createUIComponents() {
-        Handkarten = new JPanel();
-        Handkarten.setLayout(null);
-        Map<String, Color> colorMap = setColorMap();
-        LinkedList<Spieler> spielerListe = spielerErzeugen();
 
         BufferedImage img = null;
-
         try {
             img = ImageIO.read(new File(Paths.get("Main/src/res/thurnplan.jpg").toAbsolutePath().toString()));
         } catch (IOException e) {
@@ -67,77 +79,67 @@ public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, S
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-        Spielfeld.setBackground(colorMap.get("background"));
         Spielfeld.setLayout(null);
+        karte1Button = new JButton();
+        karte2Button = new JButton();
+        karte3Button = new JButton();
+        karte4Button = new JButton();
+        karte5Button = new JButton();
+        karte6Button = new JButton();
+        System.out.println(karte3Button.getText());
+
+        LinkedList<Spieler> spielerListe = spielerErzeugen();
+        Spiel spiel = spielVorbereitung(spielerListe);
 
 
-        JButton mannheimButton = new JButton();
-        positionCity(mannheimButton, 14, 15);
-
-        JButton carlsruheButton = new JButton();
-        positionCity(carlsruheButton, 5, 39);
-
-        JButton freiburgButton = new JButton();
-        positionCity(freiburgButton, 2, 65);
-
-        JButton stuttgartButton = new JButton();
-        positionCity(stuttgartButton, 22, 31);
-
-        JButton ulmButton = new JButton();
-        positionCity(ulmButton, 27, 52);
-
-        JButton sigmaringenButton = new JButton();
-        positionCity(sigmaringenButton, 15, 56);
-
-        JButton baselButton = new JButton();
-        positionCity(baselButton, 1, 81);
-
-        JButton zurichButton = new JButton();
-        positionCity(zurichButton, 12, 88);
-
-        JButton kemptenButton = new JButton();
-        positionCity(kemptenButton, 31, 76);
-
-        JButton augsburgButton = new JButton();
-        positionCity(augsburgButton, 40, 58);
-
-        JButton ingolstadtButton = new JButton();
-        positionCity(ingolstadtButton, 47, 43);
+        System.out.println("Button" + karte1Button.getText() + " " + karte1Button.getName());
+        System.out.println("Button" + karte2Button.getText() + " " + karte2Button.getName());
+        System.out.println("Button" + karte3Button.getText() + " " + karte3Button.getName());
+        System.out.println("Button" + karte4Button.getText() + " " + karte4Button.getName());
+        System.out.println("Button" + karte5Button.getText() + " " + karte5Button.getName());
+        System.out.println("Button" + karte6Button.getText() + " " + karte6Button.getName());
 
 
-        JButton nuernbergButton = new JButton();
-        positionCity(nuernbergButton, 48, 22);
 
-        JButton wuerzburgButton = new JButton();
-        positionCity(wuerzburgButton, 34, 10);
 
-        JButton regensburgButton = new JButton();
-        positionCity(regensburgButton, 62, 35);
+        JButton mannheimButton = new StadtLocator(Stadt.MANNHEIM, 14, 15, Spielfeld);
+        JButton carlsruheButton = new StadtLocator(Stadt.CARLSRUHE, 5, 39, Spielfeld);
+        JButton freiburgButton = new StadtLocator(Stadt.FREIBURG, 2, 65, Spielfeld);
+        JButton stuttgartButton = new StadtLocator(Stadt.STUTTGART, 22, 31, Spielfeld);
+        JButton ulmButton = new StadtLocator(Stadt.ULM, 27, 52, Spielfeld);
+        JButton sigmaringenButton = new StadtLocator(Stadt.SIGMARINGEN, 15, 56, Spielfeld);
+        JButton baselButton = new StadtLocator(Stadt.BASEL, 1, 81, Spielfeld);
+        JButton zurichButton = new StadtLocator(Stadt.ZÜRICH, 12, 88, Spielfeld);
+        JButton kemptenButton = new StadtLocator(Stadt.KEMPTEN, 31, 76, Spielfeld);
+        JButton augsburgButton = new StadtLocator(Stadt.AUGSBURG, 40, 58, Spielfeld);
+        JButton ingolstadtButton = new StadtLocator(Stadt.INGOLSTADT, 47, 43, Spielfeld);
+        JButton nuernbergButton = new StadtLocator(Stadt.NÜRNBERG, 48, 22, Spielfeld);
+        JButton wuerzburgButton = new StadtLocator(Stadt.WÜRZBURG, 34, 10, Spielfeld);
+        JButton regensburgButton = new StadtLocator(Stadt.REGENSBURG, 62, 35, Spielfeld);
+        JButton passauButton = new StadtLocator(Stadt.PASSAU, 70, 59, Spielfeld);
+        JButton muenchenButton = new StadtLocator(Stadt.MÜNCHEN, 55, 67, Spielfeld);
+        JButton pilsenButton = new StadtLocator(Stadt.PILSEN, 66, 13, Spielfeld);
+        JButton budweisButton = new StadtLocator(Stadt.BUDWEIS, 83, 33, Spielfeld);
+        JButton lodzButton = new StadtLocator(Stadt.LODZ, 83, 10, Spielfeld);
+        JButton linzButton = new StadtLocator(Stadt.LINZ, 83, 60, Spielfeld);
+        JButton salzburgButton = new StadtLocator(Stadt.SALZBURG, 81, 86, Spielfeld);
+        JButton innsbruckButton = new StadtLocator(Stadt.INNSBRUCK, 43, 88, Spielfeld);
+        karte1Button.repaint();
+        karte1Button.revalidate();
+    }
 
-        JButton passauButton = new JButton();
-        positionCity(passauButton, 70, 59);
 
-        JButton muenchenButton = new JButton();
-        positionCity(muenchenButton, 55, 67);
+    private Spiel spielVorbereitung(LinkedList<Spieler> spielerListe) {
 
-        JButton pilsenButton = new JButton();
-        positionCity(pilsenButton, 66, 13);
+        ArrayList<JButton> auslageKnöpfe = new ArrayList<JButton>();
+        auslageKnöpfe.add(karte1Button);
+        auslageKnöpfe.add(karte2Button);
+        auslageKnöpfe.add(karte3Button);
+        auslageKnöpfe.add(karte4Button);
+        auslageKnöpfe.add(karte5Button);
+        auslageKnöpfe.add(karte6Button);
 
-        JButton budweisButton = new JButton();
-        positionCity(budweisButton, 83, 33);
-
-        JButton lodzButton = new JButton();
-        positionCity(lodzButton, 83, 10);
-
-        JButton linzButton = new JButton();
-        positionCity(linzButton, 83, 60);
-
-        JButton salzburgButton = new JButton();
-        positionCity(salzburgButton, 81, 86);
-
-        JButton innsbruckButton = new JButton();
-        positionCity(innsbruckButton, 43, 88);
-
+        return new Spiel(spielerListe, auslageKnöpfe);
     }
 
     private LinkedList<Spieler> spielerErzeugen() {
@@ -147,6 +149,7 @@ public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, S
 
     private LinkedList<Spieler> legeSpielerAn(int anzahl) {
         LinkedList<Spieler> spielerListe = new LinkedList<Spieler>();
+
         JComboBox farbBox = farbBoxAnlegen();
         for (int i = 0; i < anzahl; i++) {
             String name = spielerNamenEingeben();
@@ -206,74 +209,5 @@ public class Main extends JFrame implements Postillion, Amtsmann, Postmeister, S
             result = JOptionPane.showConfirmDialog(null, panel, "Flavor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
         }
         return Integer.parseInt(comboBox.getSelectedItem().toString());
-    }
-
-
-    private Map<String, Color> setColorMap() {
-        Map<String, Color> temp = new HashMap<String, Color>();
-        temp.put("purple", new Color(167, 114, 186));
-        temp.put("lightblue", new Color(150, 206, 217));
-        temp.put("grey", new Color(204, 204, 204));
-        temp.put("green", new Color(31, 122, 44));
-        temp.put("lightgreen", new Color(36, 209, 62));
-        temp.put("orange", new Color(250, 167, 22));
-        temp.put("red", new Color(180, 0, 0));
-        temp.put("blue", new Color(0, 0, 180));
-        temp.put("darkgrey", new Color(75, 75, 75));
-        temp.put("white", new Color(255, 255, 255));
-        temp.put("background", new Color(222, 181, 4));
-        return temp;
-    }
-
-    private void positionCity(JButton button, int x, int y) {
-        button.setPreferredSize(new Dimension(75, 20));
-        button.setContentAreaFilled(false);
-        button.setOpaque(false);
-        Spielfeld.add(button);
-
-        //Insets insets = mapPanel.getInsets();
-        Dimension size = button.getPreferredSize();
-
-        x = map(x, 0, 150, 0, 1000);
-        y = map(y, 0, 100, 0, 500);
-
-        button.setBounds(x, y, size.width, size.height);
-    }
-
-    private int map(int x, int in_min, int in_max, int out_min, int out_max) {
-        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-    }
-
-    @Override
-    public void tauschen() {
-        //TODO
-    }
-
-    @Override
-    public void karteAuspielen() {
-        //TODO
-    }
-
-    @Override
-    public void neuZiehen() {
-        //TODO
-    }
-
-    @Override
-    public Karte ziehen() {
-        //TODO
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Karte auslegen() {
-        //TODO
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public int streckeWeten() {
-        //TODO
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }
