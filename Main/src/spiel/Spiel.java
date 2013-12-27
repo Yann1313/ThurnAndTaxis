@@ -6,7 +6,10 @@ import karten.KartenDeck;
 import karten.Stadt;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.*;
+import java.util.List;
 
 /**
  * Klasse, welche //TODO: Beschreibung der Klasse
@@ -20,12 +23,61 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     private Map<Stadt, ArrayList<Stadt>> wege = new HashMap<Stadt, ArrayList<Stadt>>();
     private List<Karte> auslageKarten = new LinkedList<Karte>();
     private List<Karte> ablageStapel = new LinkedList<Karte>();
+    private int aktuellerSpieler;
 
-    public Spiel(List<Spieler> spieler, ArrayList<JButton> auslage) {
+
+    public Spiel(List<Spieler> spieler) {
         this.spieler = spieler;
         trageWegeEin();
-        tauschen(auslage);
+        tauschen();
+        aktuellerSpieler = 0;
+    }
 
+    public int getAktuellerSpieler() {
+        return this.aktuellerSpieler;
+    }
+
+    public List<Karte> getAuslageKarten() {
+        return this.auslageKarten;
+    }
+
+    public void spielen() {
+        while (hatJemandGewonnen()) {
+            führeZügeAus();
+        }
+        Spieler gewinner = ermittleGewinner();
+    }
+
+    private void führeZügeAus() {
+
+        for (int i = 0; i < this.spieler.size(); ) {
+            führSpielerZugAus(this.spieler.get(i), i);
+        }
+
+
+    }
+
+    private void führSpielerZugAus(Spieler spieler, int i) {
+        this.aktuellerSpieler = i;
+        if (spieler.getErsterZug()) {
+
+        }
+
+    }
+
+
+    private Spieler ermittleGewinner() {
+        return null; //TODO
+    }
+
+    private boolean hatJemandGewonnen() {
+        boolean gewonnen = false;
+        for (Spieler spieler : this.spieler) {
+            if (!spieler.häuserÜbrig()) {
+                gewonnen = true;
+            }
+        }
+        return gewonnen;
     }
 
     private void trageWegeEin() {
@@ -36,24 +88,9 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
 
 
     @Override
-    public void tauschen(ArrayList<JButton> auslage) {
+    public void tauschen() {
         kartenAblegen();
         kartenNeuLegen();
-        verknüpfeKartenMitAuslage(auslage);
-    }
-
-    private void verknüpfeKartenMitAuslage(ArrayList<JButton> auslage) {
-        int index = 0;
-        JButton button;
-        for (Karte karte : this.auslageKarten) {
-            button = auslage.get(index);
-            button.setBackground(karte.getStadt().getLand().getFarbe());
-            button.setText(karte.getStadt().toString());
-            button.setName(karte.getStadt().toString());
-            index++;
-
-        }
-        button = null;
     }
 
     private void kartenNeuLegen() {
@@ -76,13 +113,26 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
 
     @Override
     public void neuZiehen() {
-        //TODO
+
     }
 
     @Override
     public Karte ziehen() {
-        //TODO
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Spieler aktuellerSpieler = spieler.get(this.getAktuellerSpieler());
+        if (this.kartenDeck.size() < 2) {
+            fülleDeckAuf();
+        }
+        Karte karte = kartenDeck.pop();
+        aktuellerSpieler.getHand().add(karte);
+        aktuellerSpieler.setGezogen(true);
+        return karte;
+    }
+
+    private void fülleDeckAuf() {
+        Karte erste = kartenDeck.pop();
+        Collections.addAll(this.kartenDeck, ((Karte[]) this.ablageStapel.toArray()));
+        kartenDeck.mischen();
+        kartenDeck.push(erste);
     }
 
     @Override
@@ -177,4 +227,34 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     }
 
 
+    public Karte karteZiehen(String actionCommand) {
+        Karte karte = null;
+        Spieler aktuellerSpieler = spieler.get(this.getAktuellerSpieler());
+        if (!aktuellerSpieler.getGezogen()) {
+            if (actionCommand.equals("Kartenstapel")) {
+                karte = this.ziehen();
+
+            } else if (actionCommand.contains("Auslage_")) {
+                boolean added = false;
+                for (Karte tmp : this.auslageKarten) {
+                    if (tmp.getStadt().toString().equals(actionCommand.substring(8)) && !added) {
+                        karte = tmp;
+                        aktuellerSpieler.getHand().add(tmp);
+                        added = true;
+                        aktuellerSpieler.setGezogen(true);
+                    }
+                }
+                this.auslageKarten.remove(karte);
+                neueKarteFürAuslage();
+            }
+        }
+        return karte;
+    }
+
+    private void neueKarteFürAuslage() {
+        if (this.kartenDeck.size() < 2) {
+            fülleDeckAuf();
+        }
+        this.auslageKarten.add(kartenDeck.pop());
+    }
 }

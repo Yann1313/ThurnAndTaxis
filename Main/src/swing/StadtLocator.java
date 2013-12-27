@@ -15,7 +15,6 @@ public class StadtLocator extends JButton {
     Stadt stadt;
 
     public StadtLocator(Stadt stadt, int x, int y, JPanel map) {
-        super(stadt.name());
 
         this.stadt = stadt;
         this.setPreferredSize(new Dimension(75, 20));
@@ -23,7 +22,6 @@ public class StadtLocator extends JButton {
         this.setOpaque(false);
         map.add(this);
 
-        //Insets insets = mapPanel.getInsets();
         Dimension size = this.getPreferredSize();
 
         x = map(x, 0, 150, 0, 1000);

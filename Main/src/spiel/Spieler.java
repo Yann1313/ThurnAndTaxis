@@ -16,6 +16,9 @@ public class Spieler {
     private String name;
     private Farbe farbe;
     private int punkte;
+    private boolean gezogen = false;
+    private boolean gelegt = false;
+    private boolean ersterZug = true;
     private Map<Integer, Karte> häuser = new HashMap<Integer, Karte>();
     private LinkedList<Karte> hand;
 
@@ -37,8 +40,16 @@ public class Spieler {
         return this.häuser.containsValue(null);
     }
 
+    public LinkedList<Karte> getHand() {
+        return this.hand;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public boolean getErsterZug(){
+       return this.ersterZug;
     }
 
     public Farbe getFarbe() {
@@ -47,6 +58,18 @@ public class Spieler {
 
     public int getPunkte() {
         return punkte;
+    }
+
+    public boolean getGelegt(){
+        return this.gelegt;
+    }
+
+    public boolean getGezogen(){
+        return this.gezogen;
+    }
+
+    public void setGezogen(boolean gezogen){
+        this.gezogen = gezogen;
     }
 
     public String toString() {

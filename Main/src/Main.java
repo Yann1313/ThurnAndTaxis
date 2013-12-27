@@ -1,5 +1,4 @@
 
-import amtsmaenner.*;
 import karten.Karte;
 import karten.Stadt;
 import spiel.*;
@@ -16,9 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * Klasse, welche //TODO: Beschreibung der Klasse
@@ -40,13 +37,23 @@ public class Main extends JFrame {
     private JButton ablagestapelButton;
     private JTextPane consoleTextPane;
     private JPanel Spielfeld;
-
+    private JPanel handkartenAreal;
+    private LinkedList<Spieler> spielerListe;
+    private Spiel spiel;
 
     public Main() {
+        spielerListe = spielerErzeugen();
+        spiel = spielVorbereitung(spielerListe);
+        verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //To change body of implemented methods use File | Settings | File Templates.
+                Karte neueKarte = spiel.karteZiehen(e.getActionCommand());
+                if (neueKarte != null) {
+                    handkartenAreal.add(generiereNeuenHandKartenKnopf(neueKarte));
+                    verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
+
+                }
             }
         };
         karte2Button.addActionListener(listener);
@@ -55,7 +62,26 @@ public class Main extends JFrame {
         karte3Button.addActionListener(listener);
         karte6Button.addActionListener(listener);
         karte5Button.addActionListener(listener);
+        kartenstapelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Karte neueKarte = spiel.karteZiehen(e.getActionCommand());
+                if (neueKarte != null) {
+                    handkartenAreal.add(generiereNeuenHandKartenKnopf(neueKarte));
+                    Spiel.revalidate();
+                }
+            }
+
+        });
     }
+
+    private JButton generiereNeuenHandKartenKnopf(Karte neueKarte) {
+        JButton handkarte = new JButton(neueKarte.getStadt().toString());
+        handkarte.setBackground(neueKarte.getStadt().getLand().getFarbe());
+        handkarte.setForeground(new Color(255, 255, 255));
+        return handkarte;
+    }
+
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Main");
@@ -68,40 +94,31 @@ public class Main extends JFrame {
 
 
     private void createUIComponents() {
+        ladeSpielfeld();
+        ladeButtons();
+    }
 
-        BufferedImage img = null;
-        try {
-            img = ImageIO.read(new File(Paths.get("Main/src/res/thurnplan.jpg").toAbsolutePath().toString()));
-        } catch (IOException e) {
-        }
+    private void ladeSpielfeld() {
         try {
             Spielfeld = new ImagePanel(Paths.get("Main/src/res/thurnplan.jpg").toAbsolutePath().toString());
         } catch (IOException exception) {
             exception.printStackTrace();
         }
         Spielfeld.setLayout(null);
+    }
+
+    private void ladeButtons() {
         karte1Button = new JButton();
         karte2Button = new JButton();
         karte3Button = new JButton();
         karte4Button = new JButton();
         karte5Button = new JButton();
         karte6Button = new JButton();
-        System.out.println(karte3Button.getText());
-
-        LinkedList<Spieler> spielerListe = spielerErzeugen();
-        Spiel spiel = spielVorbereitung(spielerListe);
-
-
-        System.out.println("Button" + karte1Button.getText() + " " + karte1Button.getName());
-        System.out.println("Button" + karte2Button.getText() + " " + karte2Button.getName());
-        System.out.println("Button" + karte3Button.getText() + " " + karte3Button.getName());
-        System.out.println("Button" + karte4Button.getText() + " " + karte4Button.getName());
-        System.out.println("Button" + karte5Button.getText() + " " + karte5Button.getName());
-        System.out.println("Button" + karte6Button.getText() + " " + karte6Button.getName());
-
-
-
-
+        handkartenAreal = new JPanel();
+        kartenstapelButton = new JButton();
+        BufferedImage buttonIcon = readImageFromPath("Main/src/res/TuTSR.PNG");
+        kartenstapelButton = new JButton(new ImageIcon(buttonIcon));
+        kartenstapelButton.setBorderPainted(false);
         JButton mannheimButton = new StadtLocator(Stadt.MANNHEIM, 14, 15, Spielfeld);
         JButton carlsruheButton = new StadtLocator(Stadt.CARLSRUHE, 5, 39, Spielfeld);
         JButton freiburgButton = new StadtLocator(Stadt.FREIBURG, 2, 65, Spielfeld);
@@ -124,22 +141,45 @@ public class Main extends JFrame {
         JButton linzButton = new StadtLocator(Stadt.LINZ, 83, 60, Spielfeld);
         JButton salzburgButton = new StadtLocator(Stadt.SALZBURG, 81, 86, Spielfeld);
         JButton innsbruckButton = new StadtLocator(Stadt.INNSBRUCK, 43, 88, Spielfeld);
-        karte1Button.repaint();
-        karte1Button.revalidate();
+    }
+
+    private BufferedImage readImageFromPath(String path) {
+        try {
+            return ImageIO.read(new File(Paths.get(path).toAbsolutePath().toString()));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
 
     private Spiel spielVorbereitung(LinkedList<Spieler> spielerListe) {
+        return new Spiel(spielerListe);
+    }
 
-        ArrayList<JButton> auslageKnöpfe = new ArrayList<JButton>();
-        auslageKnöpfe.add(karte1Button);
-        auslageKnöpfe.add(karte2Button);
-        auslageKnöpfe.add(karte3Button);
-        auslageKnöpfe.add(karte4Button);
-        auslageKnöpfe.add(karte5Button);
-        auslageKnöpfe.add(karte6Button);
+    private ArrayList<JButton> generiereAuslageKnöpfe() {
+        ArrayList<JButton> tmp = new ArrayList<JButton>();
+        tmp.add(karte1Button);
+        tmp.add(karte2Button);
+        tmp.add(karte3Button);
+        tmp.add(karte4Button);
+        tmp.add(karte5Button);
+        tmp.add(karte6Button);
+        return tmp;
+    }
 
-        return new Spiel(spielerListe, auslageKnöpfe);
+    private void verknüpfeKartenMitAuslage(ArrayList<JButton> auslage) {
+        int index = 0;
+        JButton button;
+        for (Karte karte : spiel.getAuslageKarten()) {
+            button = auslage.get(index);
+            button.setBackground(karte.getStadt().getLand().getFarbe());
+            button.setText(karte.getStadt().toString());
+            button.setActionCommand("Auslage_" + karte.getStadt().toString());
+            button.setName(karte.getStadt().toString());
+            index++;
+
+        }
+        button = null;
     }
 
     private LinkedList<Spieler> spielerErzeugen() {
@@ -156,9 +196,6 @@ public class Main extends JFrame {
             Farbe farbe = farbeAuswaehlen(farbBox);
             farbBox.removeItem(farbe);
             spielerListe.add(new Spieler(name, farbe));
-        }
-        for (Spieler spieler : spielerListe) {
-            System.out.println(spieler);
         }
         return spielerListe;
     }

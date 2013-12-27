@@ -26,7 +26,7 @@ public class KartenDeck extends Stack<Karte> {
         mischen();
     }
 
-    private void mischen() {
+    public void mischen() {
         Collections.shuffle(this);
     }
 }

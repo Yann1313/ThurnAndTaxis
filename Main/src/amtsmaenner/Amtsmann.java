@@ -10,6 +10,6 @@ import java.util.ArrayList;
  */
 public interface Amtsmann {
 
-    public abstract void tauschen(ArrayList<JButton> auslage);
+    public abstract void tauschen();
 
 }
