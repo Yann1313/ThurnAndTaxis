@@ -15,4 +15,6 @@ public interface Spielzuege {
 
     public abstract int streckeWeten();
 
+    public abstract void spielzugBeenden();
+
 }

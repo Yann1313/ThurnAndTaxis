@@ -16,9 +16,11 @@ public class Spieler {
     private String name;
     private Farbe farbe;
     private int punkte;
+    private boolean amtmann = false;
     private boolean gezogen = false;
     private boolean gelegt = false;
     private boolean ersterZug = true;
+    private boolean zugBeendet = false;
     private Map<Integer, Karte> häuser = new HashMap<Integer, Karte>();
     private LinkedList<Karte> hand;
 
@@ -48,8 +50,8 @@ public class Spieler {
         return name;
     }
 
-    public boolean getErsterZug(){
-       return this.ersterZug;
+    public boolean getErsterZug() {
+        return this.ersterZug;
     }
 
     public Farbe getFarbe() {
@@ -60,19 +62,46 @@ public class Spieler {
         return punkte;
     }
 
-    public boolean getGelegt(){
+    public boolean getGelegt() {
         return this.gelegt;
     }
 
-    public boolean getGezogen(){
+    public void setGelegt(boolean gelegt) {
+        this.gelegt = gelegt;
+    }
+
+    public boolean getGezogen() {
         return this.gezogen;
     }
 
-    public void setGezogen(boolean gezogen){
+    public void setGezogen(boolean gezogen) {
         this.gezogen = gezogen;
     }
 
     public String toString() {
         return this.name + " - " + this.farbe.name();
+    }
+
+    public void setAmtmann(boolean amtmann) {
+        this.amtmann = amtmann;
+    }
+
+    public boolean getAmtmann() {
+        return amtmann;
+    }
+
+    public boolean isZugBeendet() {
+        return zugBeendet;
+    }
+
+    public void setZugBeendet(boolean zugBeendet) {
+        this.zugBeendet = zugBeendet;
+    }
+
+    public void resetteFelder() {
+        setGezogen(false);
+        setAmtmann(false);
+        setGelegt(false);
+        setZugBeendet(false);
     }
 }

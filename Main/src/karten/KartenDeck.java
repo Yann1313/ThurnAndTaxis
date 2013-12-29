@@ -19,7 +19,7 @@ public class KartenDeck extends Stack<Karte> {
 
     private void createDeck() {
         for (Stadt stadt : Stadt.values()) {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i <= 2; i++) {
                 this.add(new Karte(stadt));
             }
         }

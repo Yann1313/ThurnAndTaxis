@@ -38,6 +38,7 @@ public class Main extends JFrame {
     private JTextPane consoleTextPane;
     private JPanel Spielfeld;
     private JPanel handkartenAreal;
+    private JButton spielzugBeendenButton;
     private LinkedList<Spieler> spielerListe;
     private Spiel spiel;
 
@@ -45,6 +46,7 @@ public class Main extends JFrame {
         spielerListe = spielerErzeugen();
         spiel = spielVorbereitung(spielerListe);
         verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
+
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -62,17 +64,68 @@ public class Main extends JFrame {
         karte3Button.addActionListener(listener);
         karte6Button.addActionListener(listener);
         karte5Button.addActionListener(listener);
+
         kartenstapelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("Karte vom Kartenstapel");
                 Karte neueKarte = spiel.karteZiehen(e.getActionCommand());
                 if (neueKarte != null) {
+                    System.out.println("Neue Karte ist: " + neueKarte.getStadt());
                     handkartenAreal.add(generiereNeuenHandKartenKnopf(neueKarte));
                     Spiel.revalidate();
                 }
             }
 
         });
+        ActionListener listener1 = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String chosenAmtmann = e.getActionCommand();
+                System.out.println(spiel.getSpieler().get(spiel.getAktuellerSpielerIndex()).hashCode());
+                if (!spiel.getAktuellerSpieler().getAmtmann()) {
+                    if (chosenAmtmann.equals("Postillion")) {
+                        spiel.karteAuspielen();
+                    } else if (chosenAmtmann.equals("Postmeister")) {
+                        spiel.neuZiehen();
+                    } else if (chosenAmtmann.equals("Amtmann")) {
+                        spiel.tauschen();
+                        verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
+                        Spiel.revalidate();
+                    }
+                }
+            }
+        };
+        amtmannButton.addActionListener(listener1);
+        postmeisterButton.addActionListener(listener1);
+        postillionButton.addActionListener(listener1);
+        spielzugBeendenButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                spiel.spielzugBeenden();
+                initialisiereSpieler();
+                System.out.println(spiel.getAktuellerSpieler().getGezogen());
+                handkartenAreal.revalidate();
+                handkartenAreal.repaint();
+            }
+        });
+    }
+
+    private void initialisiereSpieler() {
+        löscheAlteKnöpfe();
+        Spiel.revalidate();
+        for (Karte karte : spiel.getAktuellerSpieler().getHand()) {
+            handkartenAreal.add(generiereNeuenHandKartenKnopf(karte));
+        }
+        Spiel.revalidate();
+    }
+
+    private void löscheAlteKnöpfe() {
+        for (int i = 0; i <= handkartenAreal.getComponents().length; i++) {
+            System.out.println("GRÖSSE DAVOR: " + handkartenAreal.getComponentCount());
+            handkartenAreal.remove(i);
+            System.out.println("GRÖSSE DANACH: " + handkartenAreal.getComponentCount());
+        }
     }
 
     private JButton generiereNeuenHandKartenKnopf(Karte neueKarte) {
@@ -114,8 +167,12 @@ public class Main extends JFrame {
         karte4Button = new JButton();
         karte5Button = new JButton();
         karte6Button = new JButton();
+        postillionButton = new JButton();
+        postmeisterButton = new JButton();
+        amtmannButton = new JButton();
         handkartenAreal = new JPanel();
         kartenstapelButton = new JButton();
+        spielzugBeendenButton = new JButton();
         BufferedImage buttonIcon = readImageFromPath("Main/src/res/TuTSR.PNG");
         kartenstapelButton = new JButton(new ImageIcon(buttonIcon));
         kartenstapelButton.setBorderPainted(false);
