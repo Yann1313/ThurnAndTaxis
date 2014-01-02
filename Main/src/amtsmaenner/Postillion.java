@@ -1,5 +1,7 @@
 package amtsmaenner;
 
+import karten.Karte;
+
 /**
  * Klasse, welche //TODO: Beschreibung der Klasse
  *
@@ -7,6 +9,6 @@ package amtsmaenner;
  */
 public interface Postillion {
 
-    public abstract void karteAuspielen();
+    public abstract void weitereKarteAuspielen();
 
 }

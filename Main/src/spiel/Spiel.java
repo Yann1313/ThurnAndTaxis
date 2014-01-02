@@ -19,9 +19,8 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     private KartenDeck kartenDeck = new KartenDeck();
     private Map<Stadt, ArrayList<Stadt>> wege = new HashMap<Stadt, ArrayList<Stadt>>();
     private List<Karte> auslageKarten = new LinkedList<Karte>();
-    private List<Karte> ablageStapel = new LinkedList<Karte>();
+    private Stack<Karte> ablageStapel = new Stack<Karte>();
     private int aktuellerSpielerIndex;
-    private Spieler aktuellerSpieler;
 
 
     public Spiel(List<Spieler> spieler) {
@@ -29,6 +28,14 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         trageWegeEin();
         tauschen();
         aktuellerSpielerIndex = 0;
+    }
+
+    public Stack<Karte> getAblageStapel() {
+        return ablageStapel;
+    }
+
+    public void setAblageStapel(Stack<Karte> ablageStapel) {
+        this.ablageStapel = ablageStapel;
     }
 
     public int getAktuellerSpielerIndex() {
@@ -44,24 +51,9 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         return this.wege;
     }
 
-    private void führeZügeAus() {
-        for (int i = 0; i < this.spieler.size(); ) {
-
-        }
-    }
 
     public List<Spieler> getSpieler() {
         return this.spieler;
-    }
-
-    private void führeSpielerZugAus(Spieler spieler, int i) {
-        this.aktuellerSpielerIndex = i;
-        Spieler aktuellerSpieler = this.spieler.get(this.aktuellerSpielerIndex);
-        aktuellerSpieler.resetteFelder();
-        System.out.println(aktuellerSpieler.hashCode());
-        while (!aktuellerSpieler.isZugBeendet()) {
-            System.out.println("ich bin schlaflos");
-        }
     }
 
 
@@ -88,14 +80,46 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
 
     @Override
     public void tauschen() {
+        for (Karte karte : this.auslageKarten) {
+        }
         this.spieler.get(this.getAktuellerSpielerIndex()).setAmtmann(true);
-        kartenAblegen();
+        kartenAblegen(this.auslageKarten);
+        this.auslageKarten.clear();
         kartenNeuLegen();
+    }
 
+    public void karteAuspielen(Karte karte) {
+        Spieler aktuellerSpieler = this.getAktuellerSpieler();
+        ArrayList<Karte> spielerAuslage = aktuellerSpieler.getAuslage();
+        if (spielerAuslage.size() < 1) {
+            System.out.println("Größe ist: " + spielerAuslage.size());
+            spielerAuslage.add(karte);
+            aktuellerSpieler.entferneHandKarte(karte);
+        } else {
+            boolean check = prüfeAuspielen(karte);
+            if (!check) {
+
+                kartenAblegen(spielerAuslage);
+                spielerAuslage.clear();
+                spielerAuslage.add(karte);
+            }
+        }
+    }
+
+    private boolean prüfeAuspielen(Karte karte) {
+        Spieler aktuellerSpieler = this.getAktuellerSpieler();
+        Karte letzteAuslageKarte = aktuellerSpieler.getAuslage().get(aktuellerSpieler.getAuslage().size() - 1);
+        Stadt letzteStadt = Stadt.valueOf(letzteAuslageKarte.getStadt().toString());
+        Stadt neueStadt = Stadt.valueOf(karte.getStadt().toString());
+        if (wege.get(letzteStadt).contains(neueStadt)) {
+            aktuellerSpieler.getAuslage().add(karte);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void kartenNeuLegen() {
-        System.out.println(this.kartenDeck.size());
         if (this.kartenDeck.size() < 8) {
             fülleDeckAuf();
         }
@@ -104,21 +128,20 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         }
     }
 
-    private void kartenAblegen() {
-        for (Karte karte : this.auslageKarten) {
+    private void kartenAblegen(List<Karte> karten) {
+        for (Karte karte : karten) {
             this.ablageStapel.add(karte);
         }
-        this.auslageKarten.clear();
     }
 
     @Override
-    public void karteAuspielen() {
-        //TODO
+    public void weitereKarteAuspielen() {
+
     }
 
     @Override
     public void neuZiehen() {
-
+        this.getAktuellerSpieler().setGezogenCount(this.getAktuellerSpieler().getGezogenCount() + 1);
     }
 
     @Override
@@ -129,7 +152,7 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         }
         Karte karte = kartenDeck.pop();
         aktuellerSpieler.getHand().add(karte);
-        aktuellerSpieler.setGezogen(true);
+        aktuellerSpieler.setGezogenCount(aktuellerSpieler.getGezogenCount() - 1);
         return karte;
     }
 
@@ -158,7 +181,6 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     @Override
     public void spielzugBeenden() {
         this.nächsterSpieler();
-        System.out.println("Index" + aktuellerSpielerIndex);
         this.getAktuellerSpieler().resetteFelder();
     }
 
@@ -253,7 +275,7 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     public Karte karteZiehen(String actionCommand) {
         Karte karte = null;
         Spieler aktuellerSpieler = spieler.get(this.getAktuellerSpielerIndex());
-        if (!aktuellerSpieler.getGezogen()) {
+        if (aktuellerSpieler.getGezogenCount() > 0) {
             if (actionCommand.equals("Kartenstapel")) {
                 karte = this.ziehen();
 
@@ -264,7 +286,7 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
                         karte = tmp;
                         aktuellerSpieler.getHand().add(tmp);
                         added = true;
-                        aktuellerSpieler.setGezogen(true);
+                        aktuellerSpieler.setGezogenCount(aktuellerSpieler.getGezogenCount() - 1);
                     }
                 }
                 this.auslageKarten.remove(karte);

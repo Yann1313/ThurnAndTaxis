@@ -2,6 +2,7 @@ package spiel;
 
 import karten.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -17,19 +18,29 @@ public class Spieler {
     private Farbe farbe;
     private int punkte;
     private boolean amtmann = false;
-    private boolean gezogen = false;
-    private boolean gelegt = false;
+    private int gezogenCount = 1;
+    private int gelegtCount = 1;
     private boolean ersterZug = true;
     private boolean zugBeendet = false;
     private Map<Integer, Karte> häuser = new HashMap<Integer, Karte>();
     private LinkedList<Karte> hand;
+    private ArrayList<Karte> auslage;
 
     public Spieler(String name, Farbe farbe) {
         this.name = name;
         this.farbe = farbe;
         this.punkte = 0;
         this.hand = new LinkedList<Karte>();
+        this.auslage = new ArrayList<Karte>();
         initialisiereHäuser();
+    }
+
+    public ArrayList<Karte> getAuslage() {
+        return auslage;
+    }
+
+    public void setAuslage(ArrayList<Karte> auslage) {
+        this.auslage = auslage;
     }
 
     private void initialisiereHäuser() {
@@ -62,20 +73,20 @@ public class Spieler {
         return punkte;
     }
 
-    public boolean getGelegt() {
-        return this.gelegt;
+    public int getGelegtCount() {
+        return this.gelegtCount;
     }
 
-    public void setGelegt(boolean gelegt) {
-        this.gelegt = gelegt;
+    public void setGelegt(int gelegtCount) {
+        this.gelegtCount = gelegtCount;
     }
 
-    public boolean getGezogen() {
-        return this.gezogen;
+    public int getGezogenCount() {
+        return this.gezogenCount;
     }
 
-    public void setGezogen(boolean gezogen) {
-        this.gezogen = gezogen;
+    public void setGezogenCount(int gezogenCount) {
+        this.gezogenCount = gezogenCount;
     }
 
     public String toString() {
@@ -99,9 +110,13 @@ public class Spieler {
     }
 
     public void resetteFelder() {
-        setGezogen(false);
+        setGezogenCount(1);
         setAmtmann(false);
-        setGelegt(false);
+        setGelegt(1);
         setZugBeendet(false);
+    }
+
+    public void entferneHandKarte(Karte karte) {
+        this.hand.remove(karte);
     }
 }

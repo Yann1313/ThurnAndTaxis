@@ -14,8 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * Klasse, welche //TODO: Beschreibung der Klasse
@@ -35,23 +34,28 @@ public class Main extends JFrame {
     private JButton postillionButton;
     private JButton kartenstapelButton;
     private JButton ablagestapelButton;
-    private JTextPane consoleTextPane;
     private JPanel Spielfeld;
     private JPanel handkartenAreal;
     private JButton spielzugBeendenButton;
-    private LinkedList<Spieler> spielerListe;
+    private JTextArea consoleText;
+    private JPanel auslegekarten;
+    private ArrayList<Spieler> spielerListe;
     private Spiel spiel;
 
     public Main() {
         spielerListe = spielerErzeugen();
-        spiel = spielVorbereitung(spielerListe);
+        spiel = spielVorbereitung();
         verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
-
+        aktualisiereAblageStapel();
+        beginneZug();
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Karte neueKarte = spiel.karteZiehen(e.getActionCommand());
                 if (neueKarte != null) {
+                    consoleText.append("Bewege deinen Hintern selbst dorthin." +
+                            " Sie liegt direkt vor dir, greife zu! \nWas meinst du damit das ist ein Computer? \n" +
+                            "Neue Karte ist " + neueKarte.getStadt() + "\n\n");
                     handkartenAreal.add(generiereNeuenHandKartenKnopf(neueKarte));
                     verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
 
@@ -68,12 +72,18 @@ public class Main extends JFrame {
         kartenstapelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Karte vom Kartenstapel");
                 Karte neueKarte = spiel.karteZiehen(e.getActionCommand());
                 if (neueKarte != null) {
-                    System.out.println("Neue Karte ist: " + neueKarte.getStadt());
+                    consoleText.append("Eine Karte vom Kartenstapel ...so so und was bekomme" +
+                            " ich dafür? \n" +
+                            "Ja ich weiß, nichts! Deine neue Karte ist auf jedenfall " + neueKarte.getStadt() + "\n\n");
                     handkartenAreal.add(generiereNeuenHandKartenKnopf(neueKarte));
+                    aktualisiereAblageStapel();
                     Spiel.revalidate();
+                } else {
+                    consoleText.append("Leider" +
+                            " darfst du pro Runde nur eine Karte ziehen\n" +
+                            "Ich kenne da jemanden der dir helfen könnte.\n\n");
                 }
             }
 
@@ -82,18 +92,35 @@ public class Main extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String chosenAmtmann = e.getActionCommand();
-                System.out.println(spiel.getSpieler().get(spiel.getAktuellerSpielerIndex()).hashCode());
+                System.out.println("amtmann?: " + spiel.getAktuellerSpieler().getAmtmann());
                 if (!spiel.getAktuellerSpieler().getAmtmann()) {
+                    consoleText.append("Uuund hier kommt der  ");
                     if (chosenAmtmann.equals("Postillion")) {
-                        spiel.karteAuspielen();
+                        spiel.weitereKarteAuspielen();
+                        consoleText.append("Postillion\n");
+                        consoleText.append("(Mhmm ja die Karten müssen wirklich dreckig sein\n" +
+                                "Oder wieso willst du sie so schnell loswerden?)");
                     } else if (chosenAmtmann.equals("Postmeister")) {
                         spiel.neuZiehen();
+                        consoleText.append("Postmeister\n");
+                        consoleText.append("(Bist du dir sicher das du diesen dreckigen Stapel weiterhin\n" +
+                                "anfassen möchtest? - OK gut!)");
                     } else if (chosenAmtmann.equals("Amtmann")) {
+                        consoleText.append("Amtmann\n");
+                        consoleText.append("(Harte Arbeit hier! Wo bleibt mein Lohn?\n" +
+                                "Auslage getauscht!)");
                         spiel.tauschen();
                         verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
                         Spiel.revalidate();
                     }
+                    spiel.getAktuellerSpieler().setAmtmann(true);
+                } else {
+                    consoleText.append("Noch viel zu lernen du hast, mein junger Padawan\n");
+                    consoleText.append("(Schreib es dir endlich hinter die Ohren,\n das geht nur einmal pro Runde!)");
+
                 }
+                consoleText.append("\n\n");
+                aktualisiereAblageStapel();
             }
         };
         amtmannButton.addActionListener(listener1);
@@ -102,29 +129,59 @@ public class Main extends JFrame {
         spielzugBeendenButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                spiel.spielzugBeenden();
-                initialisiereSpieler();
-                System.out.println(spiel.getAktuellerSpieler().getGezogen());
-                handkartenAreal.revalidate();
-                handkartenAreal.repaint();
+                System.out.println("Davor:" + spiel.getAktuellerSpieler());
+                int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du deinen Zug wirklich abgeben?", "Zug beenden", 0);
+                switch (answer) {
+                    case 0:
+                        consoleText.append("OK OK ich mach ja schon immer mit der Ruhe ;)!\n\n" +
+                                "");
+                        spiel.spielzugBeenden();
+                        initialisiereSpieler();
+                        aktualisiereAblageStapel();
+                        Spiel.revalidate();
+                        Spiel.repaint();
+                        break;
+                    default:
+                        consoleText.append("Ich weis von nichts und habe dich auch nicht gesehen. \n" +
+                                "Lass mir dass nächste mal aber bitte ein paar Groschen da OK?\n\n");
+                        System.out.println("Danach " + spiel.getAktuellerSpieler());
+                        break;
+                }
             }
         });
     }
 
+    private void beginneZug() {
+        spiel.getAktuellerSpieler().resetteFelder();
+        consoleText.append("------------------------------\nZug beginnt.");
+        consoleText.append("Der Spieler sollte nun: \nEine Karte ausspielen \nEine Karte ziehen \n" +
+                "Oder einen Postmeister in Anspruch nehmen\n\n");
+    }
+
+    private void aktualisiereAblageStapel() {
+        if (spiel.getAblageStapel().size() > 0) {
+            Karte ersteKarte = spiel.getAblageStapel().peek();
+            ablagestapelButton.setText(ersteKarte.getStadt().toString());
+            ablagestapelButton.setBackground(ersteKarte.getStadt().getLand().getFarbe());
+        } else {
+            ablagestapelButton.setText("Leer");
+            ablagestapelButton.setBackground(new Color(163, 163, 163));
+        }
+    }
+
     private void initialisiereSpieler() {
-        löscheAlteKnöpfe();
+        löscheAlteHandKnöpfe();
         Spiel.revalidate();
         for (Karte karte : spiel.getAktuellerSpieler().getHand()) {
             handkartenAreal.add(generiereNeuenHandKartenKnopf(karte));
         }
+        verknüpfeSpielerAuslageMitSpiel();
         Spiel.revalidate();
     }
 
-    private void löscheAlteKnöpfe() {
-        for (int i = 0; i <= handkartenAreal.getComponents().length; i++) {
-            System.out.println("GRÖSSE DAVOR: " + handkartenAreal.getComponentCount());
-            handkartenAreal.remove(i);
-            System.out.println("GRÖSSE DANACH: " + handkartenAreal.getComponentCount());
+    private void löscheAlteHandKnöpfe() {
+        for (Component comp : handkartenAreal.getComponents()) {
+            handkartenAreal.remove(comp);
         }
     }
 
@@ -132,9 +189,60 @@ public class Main extends JFrame {
         JButton handkarte = new JButton(neueKarte.getStadt().toString());
         handkarte.setBackground(neueKarte.getStadt().getLand().getFarbe());
         handkarte.setForeground(new Color(255, 255, 255));
+        handkarte.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(e.getActionCommand());
+                int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du diese Karte wirklich auspielen?"
+                        , "Karte auspielen", 0);
+                switch (answer) {
+                    case 0:
+                        for (Karte karte : spiel.getAktuellerSpieler().getHand()) {
+                            if (karte.getStadt().toString().equals(e.getActionCommand())) {
+                                spiel.karteAuspielen(karte);
+                                verknüpfeSpielerAuslageMitSpiel();
+                                entferneHandKartenKnopf(karte);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            private void entferneHandKartenKnopf(Karte karte) {
+                Component buttonToRemove = null;
+                for (Component comp : handkartenAreal.getComponents()) {
+                    if (((JButton) comp).getText().equals(karte.getStadt().toString())) {
+                        buttonToRemove = comp;
+                    }
+                }
+                handkartenAreal.remove(buttonToRemove);
+                for (Component comp : handkartenAreal.getComponents()) {
+                    System.out.println(comp);
+                }
+                handkartenAreal.revalidate();
+                handkartenAreal.repaint();
+            }
+
+        });
         return handkarte;
     }
 
+    private void verknüpfeSpielerAuslageMitSpiel() {
+        auslegekarten.removeAll();
+        for (Karte karte : spiel.getAktuellerSpieler().getAuslage()) {
+            auslegekarten.add(initialisiereStadtKnopf(karte));
+        }
+        auslegekarten.revalidate();
+        auslegekarten.repaint();
+    }
+
+    private JButton initialisiereStadtKnopf(Karte karte) {
+        JButton button = new JButton();
+        button.setBackground(karte.getStadt().getLand().getFarbe());
+        button.setText(karte.getStadt().toString());
+        button.setName(karte.getStadt().toString());
+        return button;
+    }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Main");
@@ -144,7 +252,6 @@ public class Main extends JFrame {
         frame.pack();
         frame.setVisible(true);
     }
-
 
     private void createUIComponents() {
         ladeSpielfeld();
@@ -171,8 +278,9 @@ public class Main extends JFrame {
         postmeisterButton = new JButton();
         amtmannButton = new JButton();
         handkartenAreal = new JPanel();
-        kartenstapelButton = new JButton();
         spielzugBeendenButton = new JButton();
+        auslegekarten = new JPanel();
+        consoleText = new JTextArea();
         BufferedImage buttonIcon = readImageFromPath("Main/src/res/TuTSR.PNG");
         kartenstapelButton = new JButton(new ImageIcon(buttonIcon));
         kartenstapelButton.setBorderPainted(false);
@@ -208,9 +316,35 @@ public class Main extends JFrame {
         }
     }
 
-
-    private Spiel spielVorbereitung(LinkedList<Spieler> spielerListe) {
+    private Spiel spielVorbereitung() {
+        Spieler beginner = ermittleBeginner();
+        consoleText.append("##### Willkommen bei Thurn und Taxis ######\n");
+        consoleText.append("Spieler " + beginner.getName() + " beginnt.\n\n");
         return new Spiel(spielerListe);
+    }
+
+    private Spieler ermittleBeginner() {
+        Map<Spieler, Integer> würfelErgebnisse = new HashMap<Spieler, Integer>();
+        for (Spieler spieler : spielerListe) {
+            würfelErgebnisse.put(spieler, würfeln(spieler));
+        }
+        Map<Spieler, Integer> sortedTreeSet = new TreeMap<Spieler, Integer>(new SpielerSortierer(würfelErgebnisse));
+        sortedTreeSet.putAll(würfelErgebnisse);
+        JOptionPane.showMessageDialog(new JPanel(), "Spieler " + sortedTreeSet.entrySet().iterator().next().getKey() + " beginnt");
+        return sortedTreeSet.entrySet().iterator().next().getKey();
+    }
+
+    private int würfeln(Spieler spieler) {
+        JPanel würfelPanel = new JPanel();
+        würfelPanel.setName("Würfeln");
+        würfelPanel.setVisible(true);
+        int würfelErgebnis = würfelErgebnis();
+        JOptionPane.showMessageDialog(würfelPanel, "Spieler " + spieler.getName() + " würfelte eine " + würfelErgebnis);
+        return würfelErgebnis;
+    }
+
+    private int würfelErgebnis() {
+        return (int) (Math.random() * 20 + 1);
     }
 
     private ArrayList<JButton> generiereAuslageKnöpfe() {
@@ -227,6 +361,7 @@ public class Main extends JFrame {
     private void verknüpfeKartenMitAuslage(ArrayList<JButton> auslage) {
         int index = 0;
         JButton button;
+
         for (Karte karte : spiel.getAuslageKarten()) {
             button = auslage.get(index);
             button.setBackground(karte.getStadt().getLand().getFarbe());
@@ -236,16 +371,16 @@ public class Main extends JFrame {
             index++;
 
         }
-        button = null;
+
     }
 
-    private LinkedList<Spieler> spielerErzeugen() {
+    private ArrayList<Spieler> spielerErzeugen() {
         int anzahl = ermittleSpielerAnzahl();
         return legeSpielerAn(anzahl);
     }
 
-    private LinkedList<Spieler> legeSpielerAn(int anzahl) {
-        LinkedList<Spieler> spielerListe = new LinkedList<Spieler>();
+    private ArrayList<Spieler> legeSpielerAn(int anzahl) {
+        ArrayList<Spieler> spielerListe = new ArrayList<Spieler>();
 
         JComboBox farbBox = farbBoxAnlegen();
         for (int i = 0; i < anzahl; i++) {
@@ -300,7 +435,7 @@ public class Main extends JFrame {
         int result = 1;
 
         while (result != 0) {
-            result = JOptionPane.showConfirmDialog(null, panel, "Flavor", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+            result = JOptionPane.showConfirmDialog(null, panel, "Spieleranzahl", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
         }
         return Integer.parseInt(comboBox.getSelectedItem().toString());
     }
