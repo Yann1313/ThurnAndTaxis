@@ -92,18 +92,17 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         Spieler aktuellerSpieler = this.getAktuellerSpieler();
         ArrayList<Karte> spielerAuslage = aktuellerSpieler.getAuslage();
         if (spielerAuslage.size() < 1) {
-            System.out.println("Größe ist: " + spielerAuslage.size());
             spielerAuslage.add(karte);
             aktuellerSpieler.entferneHandKarte(karte);
         } else {
             boolean check = prüfeAuspielen(karte);
             if (!check) {
-
                 kartenAblegen(spielerAuslage);
                 spielerAuslage.clear();
                 spielerAuslage.add(karte);
             }
         }
+        aktuellerSpieler.setGelegt(aktuellerSpieler.getGelegtCount() - 1);
     }
 
     private boolean prüfeAuspielen(Karte karte) {
@@ -136,7 +135,7 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
 
     @Override
     public void weitereKarteAuspielen() {
-
+        this.getAktuellerSpieler().setGelegt(this.getAktuellerSpieler().getGelegtCount() + 1);
     }
 
     @Override
@@ -180,8 +179,10 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
 
     @Override
     public void spielzugBeenden() {
+        if(this.getAktuellerSpieler().isErsterZug()){
+            this.getAktuellerSpieler().setErsterZug(false);
+        }
         this.nächsterSpieler();
-        this.getAktuellerSpieler().resetteFelder();
     }
 
     private void nächsterSpieler() {

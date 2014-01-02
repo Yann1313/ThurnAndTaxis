@@ -39,6 +39,7 @@ public class Main extends JFrame {
     private JButton spielzugBeendenButton;
     private JTextArea consoleText;
     private JPanel auslegekarten;
+    private JTextArea informationen;
     private ArrayList<Spieler> spielerListe;
     private Spiel spiel;
 
@@ -58,7 +59,8 @@ public class Main extends JFrame {
                             "Neue Karte ist " + neueKarte.getStadt() + "\n\n");
                     handkartenAreal.add(generiereNeuenHandKartenKnopf(neueKarte));
                     verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
-
+                    aktualisiereSpielerInformationen();
+                    Spiel.revalidate();
                 }
             }
         };
@@ -79,6 +81,7 @@ public class Main extends JFrame {
                             "Ja ich weiß, nichts! Deine neue Karte ist auf jedenfall " + neueKarte.getStadt() + "\n\n");
                     handkartenAreal.add(generiereNeuenHandKartenKnopf(neueKarte));
                     aktualisiereAblageStapel();
+                    aktualisiereSpielerInformationen();
                     Spiel.revalidate();
                 } else {
                     consoleText.append("Leider" +
@@ -92,7 +95,6 @@ public class Main extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String chosenAmtmann = e.getActionCommand();
-                System.out.println("amtmann?: " + spiel.getAktuellerSpieler().getAmtmann());
                 if (!spiel.getAktuellerSpieler().getAmtmann()) {
                     consoleText.append("Uuund hier kommt der  ");
                     if (chosenAmtmann.equals("Postillion")) {
@@ -114,9 +116,10 @@ public class Main extends JFrame {
                         Spiel.revalidate();
                     }
                     spiel.getAktuellerSpieler().setAmtmann(true);
+                    aktualisiereSpielerInformationen();
                 } else {
                     consoleText.append("Noch viel zu lernen du hast, mein junger Padawan\n");
-                    consoleText.append("(Schreib es dir endlich hinter die Ohren,\n das geht nur einmal pro Runde!)");
+                    consoleText.append("(Schreib es dir endlich hinter die Ohren,\n das geht nur einmal pro Runde!)\n\n");
 
                 }
                 consoleText.append("\n\n");
@@ -129,23 +132,27 @@ public class Main extends JFrame {
         spielzugBeendenButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Davor:" + spiel.getAktuellerSpieler());
-                int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du deinen Zug wirklich abgeben?", "Zug beenden", 0);
-                switch (answer) {
-                    case 0:
-                        consoleText.append("OK OK ich mach ja schon immer mit der Ruhe ;)!\n\n" +
-                                "");
-                        spiel.spielzugBeenden();
-                        initialisiereSpieler();
-                        aktualisiereAblageStapel();
-                        Spiel.revalidate();
-                        Spiel.repaint();
-                        break;
-                    default:
-                        consoleText.append("Ich weis von nichts und habe dich auch nicht gesehen. \n" +
-                                "Lass mir dass nächste mal aber bitte ein paar Groschen da OK?\n\n");
-                        System.out.println("Danach " + spiel.getAktuellerSpieler());
-                        break;
+                if (spiel.getAktuellerSpieler().getGezogenCount() == 0 && spiel.getAktuellerSpieler().getGelegtCount() == 0) {
+                    int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du deinen Zug wirklich abgeben?", "Zug beenden", 0);
+                    switch (answer) {
+                        case 0:
+                            consoleText.append("OK OK ich mach ja schon immer mit der Ruhe ;)!\n\n" +
+                                    "");
+                            spiel.spielzugBeenden();
+                            initialisiereSpieler();
+                            aktualisiereAblageStapel();
+                            beginneZug();
+                            Spiel.revalidate();
+                            Spiel.repaint();
+                            break;
+                        default:
+                            consoleText.append("Ich weis von nichts und habe dich auch nicht gesehen. \n" +
+                                    "Lass mir dass nächste mal aber bitte ein paar Groschen da OK?\n\n");
+                            break;
+                    }
+                } else {
+                    consoleText.append("Oh je oh je. Das geht erst wenn du eine Karte \n" +
+                            "ausgespielt und eine Karte gezogen hast\n\n");
                 }
             }
         });
@@ -156,6 +163,21 @@ public class Main extends JFrame {
         consoleText.append("------------------------------\nZug beginnt.");
         consoleText.append("Der Spieler sollte nun: \nEine Karte ausspielen \nEine Karte ziehen \n" +
                 "Oder einen Postmeister in Anspruch nehmen\n\n");
+        aktualisiereSpielerInformationen();
+    }
+
+    private void aktualisiereSpielerInformationen() {
+        Spieler aktuellerSpieler = spiel.getAktuellerSpieler();
+        informationen.setText(null);
+        informationen.append("Momentaner Spieler ist: " + aktuellerSpieler.getName() + "\n");
+        if (!aktuellerSpieler.getAmtmann()) {
+            informationen.append("Es kann noch ein Amtmann in Anspruch genommen werden\n");
+        } else {
+            informationen.append("Es kann kein Amtmann mehr in Anspruch genommen werden\n");
+        }
+        informationen.append("Es kann/können noch " + aktuellerSpieler.getGezogenCount() + " Karte(n) gezogen werden\n");
+        informationen.append("Es kann/können noch " + aktuellerSpieler.getGelegtCount() + " Karte(n) gelegt werden\n");
+        informationen.append("Anzahl Häuser: " + aktuellerSpieler.getHäuserAnzahl() + "\n");
     }
 
     private void aktualisiereAblageStapel() {
@@ -176,6 +198,7 @@ public class Main extends JFrame {
             handkartenAreal.add(generiereNeuenHandKartenKnopf(karte));
         }
         verknüpfeSpielerAuslageMitSpiel();
+        aktualisiereSpielerInformationen();
         Spiel.revalidate();
     }
 
@@ -192,20 +215,28 @@ public class Main extends JFrame {
         handkarte.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(e.getActionCommand());
-                int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du diese Karte wirklich auspielen?"
-                        , "Karte auspielen", 0);
-                switch (answer) {
-                    case 0:
-                        for (Karte karte : spiel.getAktuellerSpieler().getHand()) {
-                            if (karte.getStadt().toString().equals(e.getActionCommand())) {
-                                spiel.karteAuspielen(karte);
-                                verknüpfeSpielerAuslageMitSpiel();
-                                entferneHandKartenKnopf(karte);
+                Spieler aktuellerSpieler = spiel.getAktuellerSpieler();
+                if (aktuellerSpieler.getGelegtCount() > 0) {
+                    int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du diese Karte wirklich auspielen?"
+                            , "Karte auspielen", 0);
+                    switch (answer) {
+                        case 0:
+                            for (Karte karte : aktuellerSpieler.getHand()) {
+                                if (karte.getStadt().toString().equals(e.getActionCommand())) {
+                                    spiel.karteAuspielen(karte);
+                                    aktuellerSpieler.getHand().remove(karte);
+                                    aktualisiereSpielerInformationen();
+                                    verknüpfeSpielerAuslageMitSpiel();
+                                    entferneHandKartenKnopf(karte);
+                                }
                             }
-                        }
-                        break;
+                            break;
+                    }
+                } else {
+                    consoleText.append("Noch viel zu lernen du hast, mein junger Padawan\n");
+                    consoleText.append("(Schreib es dir endlich hinter die Ohren,\n das geht nur einmal pro Runde!)\n\n");
                 }
+
             }
 
             private void entferneHandKartenKnopf(Karte karte) {
@@ -284,6 +315,7 @@ public class Main extends JFrame {
         BufferedImage buttonIcon = readImageFromPath("Main/src/res/TuTSR.PNG");
         kartenstapelButton = new JButton(new ImageIcon(buttonIcon));
         kartenstapelButton.setBorderPainted(false);
+        informationen = new JTextArea();
         JButton mannheimButton = new StadtLocator(Stadt.MANNHEIM, 14, 15, Spielfeld);
         JButton carlsruheButton = new StadtLocator(Stadt.CARLSRUHE, 5, 39, Spielfeld);
         JButton freiburgButton = new StadtLocator(Stadt.FREIBURG, 2, 65, Spielfeld);
