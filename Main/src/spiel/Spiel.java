@@ -3,6 +3,7 @@ package spiel;
 import amtsmaenner.*;
 import karten.Karte;
 import karten.KartenDeck;
+import karten.Land;
 import karten.Stadt;
 
 import java.util.*;
@@ -22,12 +23,37 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     private Stack<Karte> ablageStapel = new Stack<Karte>();
     private int aktuellerSpielerIndex;
 
+    public int getLengthOfLastRoute() {
+        return lengthOfLastRoute;
+    }
+
+    public void setLengthOfLastRoute(int lengthOfLastRoute) {
+        this.lengthOfLastRoute = lengthOfLastRoute;
+    }
+
+    private int lengthOfLastRoute = 0;
+    private Map<String, Bonus> boni = new HashMap<String, Bonus>();
+
 
     public Spiel(List<Spieler> spieler) {
         this.spieler = spieler;
+        fügeBoniEin();
         trageWegeEin();
         tauschen();
         aktuellerSpielerIndex = 0;
+    }
+
+    private void fügeBoniEin() {
+        this.boni.put("Baden", new Bonus(3));
+        this.boni.put("Baiern", new Bonus(5));
+        this.boni.put("BöhmSalz", new Bonus(4));
+        this.boni.put("TyrolSchweiz", new Bonus(3));
+        this.boni.put("WürttHohen", new Bonus(3));
+        this.boni.put("5-Länge", new Bonus(2));
+        this.boni.put("6-Länge", new Bonus(3));
+        this.boni.put("7-Länge", new Bonus(4));
+        this.boni.put("AlleLänder", new Bonus(6));
+        this.boni.put("Spielende", new Bonus(1));
     }
 
     public Stack<Karte> getAblageStapel() {
@@ -61,22 +87,11 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         return null; //TODO
     }
 
-    public boolean hatJemandGewonnen() {
-        boolean gewonnen = false;
-        for (Spieler spieler : this.spieler) {
-            if (!spieler.häuserÜbrig()) {
-                gewonnen = true;
-            }
-        }
-        return gewonnen;
-    }
-
     private void trageWegeEin() {
         for (Stadt stadt : Stadt.values()) {
             wege.put(stadt, ermittleNachbarn(stadt));
         }
     }
-
 
     @Override
     public void tauschen() {
@@ -172,14 +187,88 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     }
 
     @Override
-    public int streckeWeten() {
-        //TODO
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    public int streckeWeten(String enabledButton, Land auswahl) {
+        if (enabledButton.equals("Im Land setzen")) {
+            this.setzteHaeuserImLand(auswahl);
+        } else {
+            this.setzteHaeuserProLand();
+        }
+        ermittleBoni();
+        return 0;
+    }
+
+    private void ermittleBoni() {
+        ermittleLänderBonus();
+        ermittleStreckenBonus();
+    }
+
+    private void ermittleStreckenBonus() {
+        Spieler aktuellerSpieler = this.getAktuellerSpieler();
+        switch (this.getLengthOfLastRoute()) {
+            case 5:
+                aktuellerSpieler.setPunkte(boni.get("5-Länge").pop());
+                break;
+            case 6:
+                aktuellerSpieler.setPunkte(boni.get("6-Länge").pop());
+                break;
+            case 7:
+                aktuellerSpieler.setPunkte(boni.get("7-Länge").pop());
+                break;
+        }
+    }
+
+    private void ermittleLänderBonus() {
+        Spieler aktuellerSpieler = this.getAktuellerSpieler();
+        Map<Integer, Karte> häuser = aktuellerSpieler.getHäuser();
+        for (Map.Entry<String, Bonus> entry : boni.entrySet()) {
+            if (entry.equals("Baden")) {
+                if (prüfeGleichheit(häuser, Land.BADEN)) {
+                    aktuellerSpieler.setPunkte(entry.getValue().pop());
+                }
+            }
+            if (entry.equals("Baiern")) {
+                if (prüfeGleichheit(häuser, Land.BAIERN)) {
+                    aktuellerSpieler.setPunkte(entry.getValue().pop());
+                }
+            }
+            if (entry.equals("BöhmSalz")) {
+                if (prüfeGleichheit(häuser, Land.BÖHMEN) && prüfeGleichheit(häuser, Land.SALZBURG)) {
+                    aktuellerSpieler.setPunkte(entry.getValue().pop());
+                }
+            }
+            if (entry.equals("TyrolSchweiz")) {
+                if (prüfeGleichheit(häuser, Land.TYROL) && prüfeGleichheit(häuser, Land.SCHWEIZ)) {
+                    aktuellerSpieler.setPunkte(entry.getValue().pop());
+                }
+            }
+            if (entry.equals("WürttHohen")) {
+                if (prüfeGleichheit(häuser, Land.WÜRTTEMBERG) && prüfeGleichheit(häuser, Land.HOHENZOLLERN)) {
+                    aktuellerSpieler.setPunkte(entry.getValue().pop());
+                }
+            }
+            if (entry.equals("AlleLänder")) {
+                if (alleLänder(häuser)) {
+                    aktuellerSpieler.setPunkte(entry.getValue().pop());
+                }
+            }
+        }
+    }
+
+    private boolean prüfeGleichheit(Map<Integer, Karte> häuser, Land land) {
+        return häuser.values().containsAll(Stadt.getAllCitysOfLand(land));
+    }
+
+    private boolean alleLänder(Map<Integer, Karte> häuser) {
+        boolean flag = false;
+        for (Land land : Land.values()) {
+            flag = prüfeGleichheit(häuser, land);
+        }
+        return flag;
     }
 
     @Override
     public void spielzugBeenden() {
-        if(this.getAktuellerSpieler().isErsterZug()){
+        if (this.getAktuellerSpieler().isErsterZug()) {
             this.getAktuellerSpieler().setErsterZug(false);
         }
         this.nächsterSpieler();
@@ -272,7 +361,6 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         return städte;
     }
 
-
     public Karte karteZiehen(String actionCommand) {
         Karte karte = null;
         Spieler aktuellerSpieler = spieler.get(this.getAktuellerSpielerIndex());
@@ -306,5 +394,70 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
 
     public Spieler getAktuellerSpieler() {
         return this.getSpieler().get(this.getAktuellerSpielerIndex());
+    }
+
+    public LinkedList<Land> länderWertung() {
+        LinkedList<Land> länder = new LinkedList<Land>();
+        for (Karte karte : this.getAktuellerSpieler().getAuslage()) {
+            if (!länder.contains(karte.getStadt().getLand()))
+                System.out.println("Ich sollte eigentlich einzigartig sein: " + karte.getStadt().getLand());
+            länder.add(karte.getStadt().getLand());
+        }
+        return länder;
+    }
+
+    public Karte getStadtFromLand(Land land) {
+        Karte tmp = null;
+        Spieler as = this.getAktuellerSpieler();
+        for (Karte karte : as.getAuslage()) {
+            if (karte.getStadt().getLand().equals(land) &&
+                    !(as.getHäuser().values().contains(karte.getStadt()))) {
+                tmp = karte;
+            }
+        }
+        return tmp;
+    }
+
+    public void setzteHaeuserImLand(Land land) {
+        LinkedList<Karte> städte = new LinkedList<Karte>();
+        Collections.addAll(städte, getCitysByRouteofLand(land));
+        this.setLengthOfLastRoute(städte.size());
+        this.getAktuellerSpieler().setHaus(städte);
+    }
+
+    public void setzteHaeuserProLand() {
+        LinkedList<Land> länder = this.länderWertung();
+        LinkedList<Karte> städte = new LinkedList<Karte>();
+        Collections.addAll(städte, getOneOfEachLand(länder));
+        this.setLengthOfLastRoute(städte.size());
+        this.getAktuellerSpieler().setHaus(städte);
+    }
+
+    private Karte[] getCitysByRouteofLand(Land land) {
+        int groesse = 0;
+        for (Karte karte : this.getAktuellerSpieler().getAuslage()) {
+            if (karte.getStadt().getLand().equals(land)) {
+                groesse++;
+            }
+        }
+        int counter = 0;
+        Karte[] array = new Karte[groesse];
+        for (Karte karte : this.getAktuellerSpieler().getAuslage()) {
+            if (karte.getStadt().getLand().equals(land)) {
+                array[counter] = karte;
+                counter++;
+            }
+        }
+        return array;
+    }
+
+    private Karte[] getOneOfEachLand(LinkedList<Land> länder) {
+        Karte[] array = new Karte[länder.size()];
+        int counter = 0;
+        for (Land land : länder) {
+            array[counter] = this.getStadtFromLand(land);
+            counter++;
+        }
+        return array;
     }
 }

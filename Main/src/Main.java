@@ -1,5 +1,6 @@
 
 import karten.Karte;
+import karten.Land;
 import karten.Stadt;
 import spiel.*;
 import swing.ImagePanel;
@@ -7,12 +8,15 @@ import swing.StadtLocator;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -40,6 +44,13 @@ public class Main extends JFrame {
     private JTextArea consoleText;
     private JPanel auslegekarten;
     private JTextArea informationen;
+    private JButton streckeWertenButton;
+    private JPanel auslageAction;
+    private JRadioButton imLandSetzenRadioButton;
+    private JRadioButton proLand1HausRadioButton;
+    private JComboBox landAuswahl;
+    private JTextPane landAuswahlTextPane;
+    private JButton houseSetButton;
     private ArrayList<Spieler> spielerListe;
     private Spiel spiel;
 
@@ -49,6 +60,8 @@ public class Main extends JFrame {
         verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
         aktualisiereAblageStapel();
         beginneZug();
+
+
         ActionListener listener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -136,8 +149,7 @@ public class Main extends JFrame {
                     int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du deinen Zug wirklich abgeben?", "Zug beenden", 0);
                     switch (answer) {
                         case 0:
-                            consoleText.append("OK OK ich mach ja schon immer mit der Ruhe ;)!\n\n" +
-                                    "");
+                            consoleText.append("OK OK ich mach ja schon immer mit der Ruhe ;)!\n\n");
                             spiel.spielzugBeenden();
                             initialisiereSpieler();
                             aktualisiereAblageStapel();
@@ -156,6 +168,137 @@ public class Main extends JFrame {
                 }
             }
         });
+        streckeWertenButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (spiel.getAktuellerSpieler().getAuslage().size() >= 0) {
+                    int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du die Strecke wirklich werten?", "Strecke werten", 0);
+                    switch (answer) {
+                        case 0:
+                            consoleText.append("Ob das klug war? Naja ich weiß nicht ;)!\n\n");
+                            initialisiereWertenFeld();
+                            Spiel.revalidate();
+                            Spiel.repaint();
+                            break;
+                        default:
+                            consoleText.append("Hin und her und hin und her! Dauernd muss ich eure Arbeit machen\n" +
+                                    "Ich will endlich Lihn dafür! :D\n\n");
+                            break;
+                    }
+                } else {
+                    consoleText.append("So langsam habe ich mich daran gewöhnt, das ihr die Regeln\n" +
+                            "nicht kennt! Du darfst deine Strecke erst werten lassen bei einer Größe\n" +
+                            "von 3");
+                }
+            }
+        });
+        houseSetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String enabledButton = null;
+                for (Component comp : auslageAction.getComponents()) {
+                    if (comp instanceof JRadioButton) {
+                        if (((JRadioButton) comp).isSelected()) {
+                            enabledButton = ((JRadioButton) comp).getText().replaceAll("\"", "");
+                        }
+                    }
+                }
+                spiel.streckeWeten(enabledButton, (Land) landAuswahl.getSelectedItem());
+                zeichneHäuserAufDasSpielfeld(spiel.getAktuellerSpieler().getHäuser());
+                radioAndComboRemove();
+                löscheAuslage();
+            }
+        });
+    }
+
+    private void radioAndComboRemove() {
+        houseSetButton.setVisible(false);
+        for (Component comp : auslageAction.getComponents()) {
+            if (comp instanceof JRadioButton) {
+                comp.setEnabled(false);
+                comp.setVisible(false);
+            } else if (comp instanceof JComboBox) {
+                ((JComboBox) comp).removeAllItems();
+                comp.setVisible(false);
+            } else if (comp instanceof JTextPane) {
+                comp.setVisible(false);
+            }
+        }
+        aktualisereSpielfeld();
+    }
+
+    private void löscheAuslage() {
+        spiel.getAktuellerSpieler().getAuslage().clear();
+        auslegekarten.removeAll();
+    }
+
+    private void zeichneHäuserAufDasSpielfeld(Map<Integer, Karte> häuser) {
+        for (Map.Entry<Integer, Karte> haus : häuser.entrySet()) {
+            if (haus.getValue() != null) {
+                for (Component comp : Spielfeld.getComponents()) {
+                    JButton stadt = (JButton) comp;
+                    if (haus.getValue().getStadt().toString().equals((stadt.getActionCommand()))) {
+                        stadt.setBorder(new LineBorder(spiel.getAktuellerSpieler().getFarbe().getCode(), 3));
+                    }
+                }
+            }
+        }
+        aktualisereSpielfeld();
+    }
+
+    private void initialisiereWertenFeld() {
+        radioAndComboReset();
+        LinkedList<Land> länder = spiel.länderWertung();
+        for (Land land : länder) {
+            landAuswahl.addItem(land);
+        }
+        imLandSetzenRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                landAuswahl.setVisible(true);
+                landAuswahlTextPane.setVisible(true);
+                imLandSetzenRadioButton.setEnabled(false);
+                proLand1HausRadioButton.setSelected(false);
+                proLand1HausRadioButton.setEnabled(true);
+                aktualisereSpielfeld();
+            }
+        });
+        proLand1HausRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                landAuswahl.setVisible(false);
+                landAuswahlTextPane.setVisible(false);
+                proLand1HausRadioButton.setEnabled(false);
+                imLandSetzenRadioButton.setSelected(false);
+                imLandSetzenRadioButton.setEnabled(true);
+                aktualisereSpielfeld();
+            }
+        });
+    }
+
+    private void radioAndComboReset() {
+        houseSetButton.setVisible(true);
+        for (Component comp : auslageAction.getComponents()) {
+            if (comp instanceof JRadioButton) {
+                comp.setEnabled(true);
+                comp.setVisible(true);
+                ((JRadioButton) comp).setSelected(false);
+            } else if (comp instanceof JComboBox) {
+                ((JComboBox) comp).removeAllItems();
+                comp.setVisible(false);
+            } else if (comp instanceof JTextPane) {
+                comp.setVisible(false);
+            }
+
+        }
+    }
+
+    private void aktualisereSpielfeld() {
+        Spielfeld.revalidate();
+        Spielfeld.repaint();
+        Spiel.revalidate();
+        Spiel.repaint();
     }
 
     private void beginneZug() {
@@ -170,14 +313,15 @@ public class Main extends JFrame {
         Spieler aktuellerSpieler = spiel.getAktuellerSpieler();
         informationen.setText(null);
         informationen.append("Momentaner Spieler ist: " + aktuellerSpieler.getName() + "\n");
+        informationen.append("Derzeitige Punktzahl ist: " + aktuellerSpieler.getPunkte() + "\n");
+        informationen.append("Verbleibende Häuser: " + aktuellerSpieler.getHäuserAnzahl() + "\n\n\n");
         if (!aktuellerSpieler.getAmtmann()) {
             informationen.append("Es kann noch ein Amtmann in Anspruch genommen werden\n");
         } else {
             informationen.append("Es kann kein Amtmann mehr in Anspruch genommen werden\n");
         }
-        informationen.append("Es kann/können noch " + aktuellerSpieler.getGezogenCount() + " Karte(n) gezogen werden\n");
+        informationen.append("\nEs kann/können noch " + aktuellerSpieler.getGezogenCount() + " Karte(n) gezogen werden\n");
         informationen.append("Es kann/können noch " + aktuellerSpieler.getGelegtCount() + " Karte(n) gelegt werden\n");
-        informationen.append("Anzahl Häuser: " + aktuellerSpieler.getHäuserAnzahl() + "\n");
     }
 
     private void aktualisiereAblageStapel() {
@@ -192,14 +336,24 @@ public class Main extends JFrame {
     }
 
     private void initialisiereSpieler() {
+        Spieler as = spiel.getAktuellerSpieler();
         löscheAlteHandKnöpfe();
-        Spiel.revalidate();
-        for (Karte karte : spiel.getAktuellerSpieler().getHand()) {
+        radioAndComboRemove();
+        entferneHäuser();
+        zeichneHäuserAufDasSpielfeld(as.getHäuser());
+        for (Karte karte : as.getHand()) {
             handkartenAreal.add(generiereNeuenHandKartenKnopf(karte));
         }
         verknüpfeSpielerAuslageMitSpiel();
         aktualisiereSpielerInformationen();
-        Spiel.revalidate();
+        aktualisereSpielfeld();
+    }
+
+    private void entferneHäuser() {
+        for (Component component : Spielfeld.getComponents()) {
+            ((JButton) component).setBorder(null);
+            ((JButton) component).setOpaque(false);
+        }
     }
 
     private void löscheAlteHandKnöpfe() {
@@ -247,9 +401,6 @@ public class Main extends JFrame {
                     }
                 }
                 handkartenAreal.remove(buttonToRemove);
-                for (Component comp : handkartenAreal.getComponents()) {
-                    System.out.println(comp);
-                }
                 handkartenAreal.revalidate();
                 handkartenAreal.repaint();
             }
@@ -312,10 +463,20 @@ public class Main extends JFrame {
         spielzugBeendenButton = new JButton();
         auslegekarten = new JPanel();
         consoleText = new JTextArea();
+        DefaultCaret caret = (DefaultCaret) consoleText.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         BufferedImage buttonIcon = readImageFromPath("Main/src/res/TuTSR.PNG");
         kartenstapelButton = new JButton(new ImageIcon(buttonIcon));
         kartenstapelButton.setBorderPainted(false);
         informationen = new JTextArea();
+        auslageAction = new JPanel();
+        imLandSetzenRadioButton = new JRadioButton();
+        proLand1HausRadioButton = new JRadioButton();
+        landAuswahl = new JComboBox<Land>();
+        landAuswahlTextPane = new JTextPane();
+        landAuswahlTextPane.setOpaque(false);
+        houseSetButton = new JButton();
+        auslageAction.setLayout(new BoxLayout(auslageAction, BoxLayout.PAGE_AXIS));
         JButton mannheimButton = new StadtLocator(Stadt.MANNHEIM, 14, 15, Spielfeld);
         JButton carlsruheButton = new StadtLocator(Stadt.CARLSRUHE, 5, 39, Spielfeld);
         JButton freiburgButton = new StadtLocator(Stadt.FREIBURG, 2, 65, Spielfeld);

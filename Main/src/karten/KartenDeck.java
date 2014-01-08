@@ -13,13 +13,17 @@ public class KartenDeck extends Stack<Karte> {
      * Konstruktor des Kartendecks.
      */
     public KartenDeck() {
-        createDeck();
+        createDeck(2);
+    }
+
+    public KartenDeck(boolean unique) {
+      createDeck(0);
     }
 
 
-    private void createDeck() {
+    private void createDeck(int kartenDuplexität) {
         for (Stadt stadt : Stadt.values()) {
-            for (int i = 0; i <= 2; i++) {
+            for (int i = 0; i <= kartenDuplexität; i++) {
                 this.add(new Karte(stadt));
             }
         }

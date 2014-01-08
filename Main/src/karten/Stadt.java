@@ -1,5 +1,6 @@
 package karten;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,13 +13,13 @@ import java.util.List;
 public enum Stadt {
     MANNHEIM(Land.BADEN),
     FREIBURG(Land.BADEN),
-    STUTTGART(Land.HOHENZOLLERN),
+    STUTTGART(Land.WÜRTTEMBERG),
     CARLSRUHE(Land.BADEN),
     BASEL(Land.SCHWEIZ),
     ZÜRICH(Land.SCHWEIZ),
     INNSBRUCK(Land.TYROL),
-    SIGMARINGEN(Land.WÜRTTEMBERG),
-    ULM(Land.HOHENZOLLERN),
+    SIGMARINGEN(Land.HOHENZOLLERN),
+    ULM(Land.WÜRTTEMBERG),
     BUDWEIS(Land.BÖHMEN),
     PILSEN(Land.BÖHMEN),
     LINZ(Land.SALZBURG),
@@ -34,7 +35,6 @@ public enum Stadt {
     LODZ(Land.POLEN);
 
 
-
     private Land land;
     private List<Stadt> benachbarteOrte = new LinkedList<Stadt>();
 
@@ -48,4 +48,14 @@ public enum Stadt {
     }
 
 
+    public static Collection<Stadt> getAllCitysOfLand(Land land) {
+        Collection<Stadt> städte = new LinkedList<Stadt>();
+        KartenDeck deck = new KartenDeck(true);
+        for (Karte karte : deck) {
+            if (karte.getStadt().getLand().equals(land)) {
+                städte.add(karte.getStadt());
+            }
+        }
+        return städte;
+    }
 }

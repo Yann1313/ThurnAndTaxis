@@ -13,7 +13,7 @@ public interface Spielzuege {
 
     public abstract Karte auslegen();
 
-    public abstract int streckeWeten();
+    public abstract int streckeWeten(String enabledButton, Land auswahl);
 
     public abstract void spielzugBeenden();
 

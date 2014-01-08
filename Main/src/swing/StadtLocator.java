@@ -31,10 +31,15 @@ public class StadtLocator extends JButton {
         this.setBounds(x, y, size.width, size.height);
         this.setForeground(this.stadt.getLand().getFarbe());
         this.setToolTipText(this.stadt.getLand().toString());
+        this.setActionCommand(this.stadt.toString());
 
     }
 
     private int map(int x, int in_min, int in_max, int out_min, int out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    }
+
+    public String toString() {
+        return "" + this.stadt;
     }
 }

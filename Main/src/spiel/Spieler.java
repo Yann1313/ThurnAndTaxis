@@ -22,25 +22,6 @@ public class Spieler {
     private int gelegtCount = 1;
     private boolean ersterZug = true;
     private boolean zugBeendet = false;
-
-    public Map<Integer, Karte> getHäuser() {
-        return häuser;
-    }
-
-    public void setHäuser(Map<Integer, Karte> häuser) {
-        this.häuser = häuser;
-    }
-
-    public int getHäuserAnzahl() {
-        int count = 0;
-        for(Map.Entry<Integer, Karte> entry: häuser.entrySet()){
-                 if(entry.getValue() == null){
-                     count++;
-                 }
-        }
-        return count;
-    }
-
     private Map<Integer, Karte> häuser = new HashMap<Integer, Karte>();
     private LinkedList<Karte> hand;
     private ArrayList<Karte> auslage;
@@ -52,6 +33,32 @@ public class Spieler {
         this.hand = new LinkedList<Karte>();
         this.auslage = new ArrayList<Karte>();
         initialisiereHäuser();
+    }
+
+    public Map<Integer, Karte> getHäuser() {
+        return häuser;
+    }
+
+    public void setHaus(LinkedList<Karte> karten) {
+        for (Karte karte : karten) {
+            boolean set = false;
+            for (Map.Entry<Integer, Karte> entry : häuser.entrySet()) {
+                if (entry.getValue() == null && !set) {
+                    entry.setValue(karte);
+                    set = true;
+                }
+            }
+        }
+    }
+
+    public int getHäuserAnzahl() {
+        int count = 0;
+        for (Map.Entry<Integer, Karte> entry : häuser.entrySet()) {
+            if (entry.getValue() == null) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public ArrayList<Karte> getAuslage() {
@@ -133,7 +140,7 @@ public class Spieler {
         setAmtmann(false);
         setGelegt(1);
         setZugBeendet(false);
-        if(this.ersterZug){
+        if (this.ersterZug) {
             setGezogenCount(2);
             setAmtmann(true);
         }
@@ -145,5 +152,9 @@ public class Spieler {
 
     public void setErsterZug(boolean ersterZug) {
         this.ersterZug = ersterZug;
+    }
+
+    public void setPunkte(int punkte) {
+        this.punkte += punkte;
     }
 }
