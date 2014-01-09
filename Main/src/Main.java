@@ -13,11 +13,14 @@ import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicBorders;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.text.DefaultCaret;
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import java.nio.file.Paths;
@@ -59,13 +62,24 @@ public class Main extends JFrame {
     private JPanel winnerPanel;
     private ArrayList<Spieler> spielerListe;
     private Spiel spiel;
+    File spieler1 = readAudioFromPath("Main/src/res/spieler1_wechsel.wav");
+    File spieler2 = readAudioFromPath("Main/src/res/spieler2_wechsel.wav");
+    File spieler3 = readAudioFromPath("Main/src/res/spieler3_wechsel.wav");
+    File spieler4 = readAudioFromPath("Main/src/res/spieler4_wechsel.wav");
+    File proLand1Haus = readAudioFromPath("Main/src/res/proLand1haus.wav");
+    File imLand = readAudioFromPath("Main/src/res/ImLand.wav");
+    File main = readAudioFromPath("Main/src/res/Main.wav");
+    AudioClip sound = null;
 
     public Main() {
+        spieleSound(main);
         spielerListe = spielerErzeugen();
         spiel = spielVorbereitung();
         verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
+        sound.stop();
         aktualisiereAblageStapel();
         beginneZug();
+
 
         ActionListener listener = new ActionListener() {
             @Override
@@ -224,13 +238,33 @@ public class Main extends JFrame {
                         }
                     }
                 }
+                wähleSetztenSoundAus(enabledButton);
                 spiel.streckeWeten(enabledButton, (Land) landAuswahl.getSelectedItem());
                 zeichneHäuserAufDasSpielfeld(spiel.getAktuellerSpieler().getHäuser());
                 radioAndComboRemove();
                 löscheAuslage();
             }
+
+            private void wähleSetztenSoundAus(String enabledButton) {
+                if (enabledButton.equals("Im Land setzen")) {
+                    spieleSound(imLand);
+                } else {
+                    spieleSound(proLand1Haus);
+                }
+            }
         });
     }
+
+    private void spieleSound(File main) {
+        try {
+            sound = Applet.newAudioClip(main.toURL());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        sound.play();
+    }
+
 
     private void radioAndComboRemove() {
         houseSetButton.setVisible(false);
@@ -325,10 +359,28 @@ public class Main extends JFrame {
 
     private void beginneZug() {
         spiel.getAktuellerSpieler().resetteFelder();
+        getSpielerSound();
         consoleText.append("------------------------------\nZug beginnt.");
         consoleText.append("Der Spieler sollte nun: \nEine Karte ausspielen \nEine Karte ziehen \n" +
                 "Oder einen Postmeister in Anspruch nehmen\n\n");
         aktualisiereSpielerInformationen();
+    }
+
+    private void getSpielerSound() {
+        switch (spiel.getAktuellerSpielerIndex()) {
+            case 0:
+                spieleSound(spieler1);
+                break;
+            case 1:
+                spieleSound(spieler2);
+                break;
+            case 2:
+                spieleSound(spieler3);
+                break;
+            case 3:
+                spieleSound(spieler4);
+                break;
+        }
     }
 
     private void aktualisiereSpielerInformationen() {
@@ -540,6 +592,15 @@ public class Main extends JFrame {
         JButton linzButton = new StadtLocator(Stadt.LINZ, 83, 60, Spielfeld);
         JButton salzburgButton = new StadtLocator(Stadt.SALZBURG, 81, 86, Spielfeld);
         JButton innsbruckButton = new StadtLocator(Stadt.INNSBRUCK, 43, 88, Spielfeld);
+    }
+
+    private File readAudioFromPath(String s) {
+        try {
+            return new File(s);
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 
     private BufferedImage readImageFromPath(String path) {
