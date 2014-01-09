@@ -1,4 +1,5 @@
 
+import com.sun.java.swing.plaf.windows.WindowsBorders;
 import karten.Karte;
 import karten.Land;
 import karten.Stadt;
@@ -9,6 +10,8 @@ import swing.StadtLocator;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicBorders;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -51,6 +54,9 @@ public class Main extends JFrame {
     private JComboBox landAuswahl;
     private JTextPane landAuswahlTextPane;
     private JButton houseSetButton;
+    private JScrollPane consoleTextPane;
+    private JPanel topWindow;
+    private JPanel winnerPanel;
     private ArrayList<Spieler> spielerListe;
     private Spiel spiel;
 
@@ -60,7 +66,6 @@ public class Main extends JFrame {
         verknüpfeKartenMitAuslage(generiereAuslageKnöpfe());
         aktualisiereAblageStapel();
         beginneZug();
-
 
         ActionListener listener = new ActionListener() {
             @Override
@@ -154,6 +159,22 @@ public class Main extends JFrame {
                             initialisiereSpieler();
                             aktualisiereAblageStapel();
                             beginneZug();
+                            System.out.println(spiel.spielZuEnde());
+                            if (spiel.spielZuEnde()) {
+                                String ergebnis = "";
+                                int count = 1;
+                                Map<Spieler, Integer> gewinner = spiel.ermittleGewinner();
+                                for (Map.Entry<Spieler, Integer> entry : gewinner.entrySet()) {
+                                    ergebnis += count + " Platz mit " + entry.getKey().getPunkte() + " Punkten geht an " + entry.getKey() + "\n";
+                                    count++;
+                                }
+                                ergebnis += "\n\n Das Spiel wird mit einem Klick auf OK beendet.\nVielen Dank fürs Spielen";
+                                JPanel gewinnerPanel = new JPanel();
+                                gewinnerPanel.setName("Ergebnis");
+                                gewinnerPanel.setVisible(true);
+                                JOptionPane.showMessageDialog(gewinnerPanel, ergebnis);
+                                System.exit(0);
+                            }
                             Spiel.revalidate();
                             Spiel.repaint();
                             break;
@@ -171,7 +192,7 @@ public class Main extends JFrame {
         streckeWertenButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (spiel.getAktuellerSpieler().getAuslage().size() >= 0) {
+                if (spiel.getAktuellerSpieler().getAuslage().size() >= 3) {
                     int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du die Strecke wirklich werten?", "Strecke werten", 0);
                     switch (answer) {
                         case 0:
@@ -246,7 +267,8 @@ public class Main extends JFrame {
         aktualisereSpielfeld();
     }
 
-    private void initialisiereWertenFeld() {
+    private void
+    initialisiereWertenFeld() {
         radioAndComboReset();
         LinkedList<Land> länder = spiel.länderWertung();
         for (Land land : länder) {
@@ -370,27 +392,42 @@ public class Main extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Spieler aktuellerSpieler = spiel.getAktuellerSpieler();
-                if (aktuellerSpieler.getGelegtCount() > 0) {
-                    int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du diese Karte wirklich auspielen?"
-                            , "Karte auspielen", 0);
-                    switch (answer) {
-                        case 0:
-                            for (Karte karte : aktuellerSpieler.getHand()) {
-                                if (karte.getStadt().toString().equals(e.getActionCommand())) {
-                                    spiel.karteAuspielen(karte);
-                                    aktuellerSpieler.getHand().remove(karte);
-                                    aktualisiereSpielerInformationen();
-                                    verknüpfeSpielerAuslageMitSpiel();
-                                    entferneHandKartenKnopf(karte);
+                if (!pruefeZyklus(e.getActionCommand())) {
+                    if (aktuellerSpieler.getGelegtCount() > 0) {
+                        int answer = JOptionPane.showConfirmDialog(new JPanel(), "Möchtest du diese Karte wirklich auspielen?"
+                                , "Karte auspielen", 0);
+                        switch (answer) {
+                            case 0:
+                                for (Karte karte : aktuellerSpieler.getHand()) {
+                                    if (karte.getStadt().toString().equals(e.getActionCommand())) {
+                                        spiel.karteAuspielen(karte);
+                                        aktuellerSpieler.getHand().remove(karte);
+                                        aktualisiereSpielerInformationen();
+                                        verknüpfeSpielerAuslageMitSpiel();
+                                        entferneHandKartenKnopf(karte);
+                                    }
                                 }
-                            }
-                            break;
+                                break;
+                        }
+                    } else {
+                        consoleText.append("Noch viel zu lernen du hast, mein junger Padawan\n");
+                        consoleText.append("(Schreib es dir endlich hinter die Ohren,\n das geht nur einmal pro Runde!)\n\n");
                     }
                 } else {
-                    consoleText.append("Noch viel zu lernen du hast, mein junger Padawan\n");
-                    consoleText.append("(Schreib es dir endlich hinter die Ohren,\n das geht nur einmal pro Runde!)\n\n");
+                    consoleText.append("Warte eben ich hole dir schnell noch mehr Bier! Entweder läufst du im Kreis,\n" +
+                            "oder dein Kopf dreht sich wie verrückt!!\n");
+                    consoleText.append("(Du kannst während du eine Route baust,\n jede Stadt nur einmal besuchen!)\n\n");
                 }
+            }
 
+            private boolean pruefeZyklus(String actionCommand) {
+                boolean zyklus = false;
+                for (Karte karte : spiel.getAktuellerSpieler().getAuslage()) {
+                    if (karte.getStadt().toString().equals(actionCommand)) {
+                        zyklus = true;
+                    }
+                }
+                return zyklus;
             }
 
             private void entferneHandKartenKnopf(Karte karte) {
@@ -463,6 +500,7 @@ public class Main extends JFrame {
         spielzugBeendenButton = new JButton();
         auslegekarten = new JPanel();
         consoleText = new JTextArea();
+        consoleTextPane = new JScrollPane();
         DefaultCaret caret = (DefaultCaret) consoleText.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         BufferedImage buttonIcon = readImageFromPath("Main/src/res/TuTSR.PNG");
@@ -476,6 +514,9 @@ public class Main extends JFrame {
         landAuswahlTextPane = new JTextPane();
         landAuswahlTextPane.setOpaque(false);
         houseSetButton = new JButton();
+        topWindow = new JPanel();
+        winnerPanel = new JPanel();
+        winnerPanel.setName("WinP");
         auslageAction.setLayout(new BoxLayout(auslageAction, BoxLayout.PAGE_AXIS));
         JButton mannheimButton = new StadtLocator(Stadt.MANNHEIM, 14, 15, Spielfeld);
         JButton carlsruheButton = new StadtLocator(Stadt.CARLSRUHE, 5, 39, Spielfeld);
@@ -513,7 +554,7 @@ public class Main extends JFrame {
         Spieler beginner = ermittleBeginner();
         consoleText.append("##### Willkommen bei Thurn und Taxis ######\n");
         consoleText.append("Spieler " + beginner.getName() + " beginnt.\n\n");
-        return new Spiel(spielerListe);
+        return new Spiel(spielerListe, beginner);
     }
 
     private Spieler ermittleBeginner() {
@@ -523,7 +564,8 @@ public class Main extends JFrame {
         }
         Map<Spieler, Integer> sortedTreeSet = new TreeMap<Spieler, Integer>(new SpielerSortierer(würfelErgebnisse));
         sortedTreeSet.putAll(würfelErgebnisse);
-        JOptionPane.showMessageDialog(new JPanel(), "Spieler " + sortedTreeSet.entrySet().iterator().next().getKey() + " beginnt");
+        Spieler startenderSpieler = sortedTreeSet.entrySet().iterator().next().getKey();
+        JOptionPane.showMessageDialog(new JPanel(), "Spieler " + startenderSpieler + " beginnt");
         return sortedTreeSet.entrySet().iterator().next().getKey();
     }
 
@@ -554,7 +596,6 @@ public class Main extends JFrame {
     private void verknüpfeKartenMitAuslage(ArrayList<JButton> auslage) {
         int index = 0;
         JButton button;
-
         for (Karte karte : spiel.getAuslageKarten()) {
             button = auslage.get(index);
             button.setBackground(karte.getStadt().getLand().getFarbe());

@@ -19,9 +19,20 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     private List<Spieler> spieler;
     private KartenDeck kartenDeck = new KartenDeck();
     private Map<Stadt, ArrayList<Stadt>> wege = new HashMap<Stadt, ArrayList<Stadt>>();
-    private List<Karte> auslageKarten = new LinkedList<Karte>();
+    private ArrayList<Karte> auslageKarten = new ArrayList<Karte>();
     private Stack<Karte> ablageStapel = new Stack<Karte>();
     private int aktuellerSpielerIndex;
+    private Spieler startenderSpieler = null;
+
+    public boolean isLetzterZug() {
+        return letzterZug;
+    }
+
+    public void setLetzterZug(boolean letzterZug) {
+        this.letzterZug = letzterZug;
+    }
+
+    private boolean letzterZug = false;
 
     public int getLengthOfLastRoute() {
         return lengthOfLastRoute;
@@ -35,12 +46,14 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
     private Map<String, Bonus> boni = new HashMap<String, Bonus>();
 
 
-    public Spiel(List<Spieler> spieler) {
+    public Spiel(ArrayList<Spieler> spieler, Spieler beginner) {
         this.spieler = spieler;
         fügeBoniEin();
         trageWegeEin();
         tauschen();
-        aktuellerSpielerIndex = 0;
+        aktuellerSpielerIndex = spieler.indexOf(beginner);
+        startenderSpieler = spieler.get(aktuellerSpielerIndex);
+        System.out.println(startenderSpieler);
     }
 
     private void fügeBoniEin() {
@@ -60,10 +73,6 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         return ablageStapel;
     }
 
-    public void setAblageStapel(Stack<Karte> ablageStapel) {
-        this.ablageStapel = ablageStapel;
-    }
-
     public int getAktuellerSpielerIndex() {
         return this.aktuellerSpielerIndex;
     }
@@ -72,19 +81,20 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         return this.auslageKarten;
     }
 
-
-    public Map<Stadt, ArrayList<Stadt>> getWege() {
-        return this.wege;
-    }
-
-
     public List<Spieler> getSpieler() {
         return this.spieler;
     }
 
+    public Map<Spieler, Integer> ermittleGewinner() {
+        Map<Spieler, Integer> spielerMap = new HashMap<Spieler, Integer>();
 
-    public Spieler ermittleGewinner() {
-        return null; //TODO
+        for (Spieler spieler : this.spieler) {
+            spielerMap.put(spieler, (spieler.getPunkte() - spieler.getHäuserAnzahl()));
+        }
+
+        Map<Spieler, Integer> sortierteGewinner = new TreeMap<Spieler, Integer>(new GewinnerSortierer(spielerMap));
+        sortierteGewinner.putAll(spielerMap);
+        return sortierteGewinner;
     }
 
     private void trageWegeEin() {
@@ -95,8 +105,6 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
 
     @Override
     public void tauschen() {
-        for (Karte karte : this.auslageKarten) {
-        }
         this.spieler.get(this.getAktuellerSpielerIndex()).setAmtmann(true);
         kartenAblegen(this.auslageKarten);
         this.auslageKarten.clear();
@@ -271,7 +279,14 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
         if (this.getAktuellerSpieler().isErsterZug()) {
             this.getAktuellerSpieler().setErsterZug(false);
         }
+        istJemandFertig();
         this.nächsterSpieler();
+    }
+
+    private void istJemandFertig() {
+        if (this.getAktuellerSpieler().getHäuser().size() == 0) {
+            this.setLetzterZug(true);
+        }
     }
 
     private void nächsterSpieler() {
@@ -378,18 +393,19 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
                         aktuellerSpieler.setGezogenCount(aktuellerSpieler.getGezogenCount() - 1);
                     }
                 }
+                int entfernterIndex = this.auslageKarten.indexOf(karte);
                 this.auslageKarten.remove(karte);
-                neueKarteFürAuslage();
+                neueKarteFürAuslage(entfernterIndex);
             }
         }
         return karte;
     }
 
-    private void neueKarteFürAuslage() {
+    private void neueKarteFürAuslage(int index) {
         if (this.kartenDeck.size() < 2) {
             fülleDeckAuf();
         }
-        this.auslageKarten.add(kartenDeck.pop());
+        this.auslageKarten.add(index, kartenDeck.pop());
     }
 
     public Spieler getAktuellerSpieler() {
@@ -459,5 +475,16 @@ public class Spiel implements Amtsmann, Postmeister, Postillion, Spielzuege {
             counter++;
         }
         return array;
+    }
+
+    public boolean spielZuEnde() {
+        System.out.println("Letzter Zug? " + this.letzterZug);
+        System.out.println("SS " + this.startenderSpieler);
+        System.out.println("MS " + this.getAktuellerSpieler());
+        if (this.isLetzterZug() && this.getAktuellerSpieler().equals(this.startenderSpieler)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
