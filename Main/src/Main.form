@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="Spiel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="1426" height="969"/>
+      <xy x="20" y="20" width="1439" height="969"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -272,7 +272,7 @@
             <border type="etched" title="Spielfeld"/>
             <children/>
           </grid>
-          <grid id="2af65" layout-manager="GridLayoutManager" row-count="7" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="2af65" layout-manager="GridLayoutManager" row-count="8" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="2" indent="0" use-parent-layout="false">
@@ -284,7 +284,7 @@
             <children>
               <component id="eaac2" class="javax.swing.JButton" binding="spielzugBeendenButton" custom-create="true" default-binding="true">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Spielzug beenden"/>
@@ -380,6 +380,14 @@
                   </component>
                 </children>
               </grid>
+              <component id="28dfc" class="javax.swing.JButton" binding="soundSwitchButton" custom-create="true">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Töne ausschalten"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="e015b" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

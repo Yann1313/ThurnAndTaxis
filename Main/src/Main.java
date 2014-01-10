@@ -60,6 +60,7 @@ public class Main extends JFrame {
     private JScrollPane consoleTextPane;
     private JPanel topWindow;
     private JPanel winnerPanel;
+    private JButton soundSwitchButton;
     private ArrayList<Spieler> spielerListe;
     private Spiel spiel;
     File spieler1 = readAudioFromPath("Main/src/res/spieler1_wechsel.wav");
@@ -69,6 +70,10 @@ public class Main extends JFrame {
     File proLand1Haus = readAudioFromPath("Main/src/res/proLand1haus.wav");
     File imLand = readAudioFromPath("Main/src/res/ImLand.wav");
     File main = readAudioFromPath("Main/src/res/Main.wav");
+    File amtmann = readAudioFromPath("Main/src/res/Amtmann_genutzt.wav");
+    File karteZiehen = readAudioFromPath("Main/src/res/karte_ziehen.wav");
+    File spielzuEnde = readAudioFromPath("Main/src/res/spielZuEnde.wav");
+    //Icon speaker = new ImageIcon(readImageFromPath("Main/src/res/speaker-icon-jpg"));
     AudioClip sound = null;
 
     public Main() {
@@ -148,6 +153,9 @@ public class Main extends JFrame {
                         Spiel.revalidate();
                     }
                     spiel.getAktuellerSpieler().setAmtmann(true);
+                    if (!spiel.getAktuellerSpieler().isErsterZug()) {
+                        spieleSound(amtmann);
+                    }
                     aktualisiereSpielerInformationen();
                 } else {
                     consoleText.append("Noch viel zu lernen du hast, mein junger Padawan\n");
@@ -552,6 +560,8 @@ public class Main extends JFrame {
         spielzugBeendenButton = new JButton();
         auslegekarten = new JPanel();
         consoleText = new JTextArea();
+        soundSwitchButton = new JButton();
+        soundSwitchButton.setIcon(speaker);
         consoleTextPane = new JScrollPane();
         DefaultCaret caret = (DefaultCaret) consoleText.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
