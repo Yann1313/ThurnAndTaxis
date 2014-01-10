@@ -92,6 +92,7 @@ public class Main extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Karte neueKarte = spiel.karteZiehen(e.getActionCommand());
                 if (neueKarte != null) {
+                    spieleSound(karteZiehen);
                     consoleText.append("Bewege deinen Hintern selbst dorthin." +
                             " Sie liegt direkt vor dir, greife zu! \nWas meinst du damit das ist ein Computer? \n" +
                             "Neue Karte ist " + neueKarte.getStadt() + "\n\n");
@@ -114,6 +115,7 @@ public class Main extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Karte neueKarte = spiel.karteZiehen(e.getActionCommand());
                 if (neueKarte != null) {
+                    spieleSound(karteZiehen);
                     consoleText.append("Eine Karte vom Kartenstapel ...so so und was bekomme" +
                             " ich dafür? \n" +
                             "Ja ich weiß, nichts! Deine neue Karte ist auf jedenfall " + neueKarte.getStadt() + "\n\n");
@@ -269,8 +271,11 @@ public class Main extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (soundSchalter) {
                     soundSchalter = false;
+                    soundSwitchButton.setText("Töne einschalten");
                 } else {
                     soundSchalter = true;
+                    soundSwitchButton.setText("Töne ausschalten");
+
                 }
             }
         });

@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="Spiel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="1439" height="969"/>
+      <xy x="20" y="20" width="1426" height="969"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -30,7 +30,7 @@
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="0" row-span="5" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <minimum-size width="500" height="320"/>
+                    <minimum-size width="500" height="-1"/>
                     <preferred-size width="500" height="-1"/>
                     <maximum-size width="500" height="-1"/>
                   </grid>
@@ -43,7 +43,7 @@
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="1" use-parent-layout="false">
-                    <minimum-size width="500" height="200"/>
+                    <minimum-size width="500" height="480"/>
                   </grid>
                 </constraints>
                 <properties/>
@@ -53,7 +53,7 @@
               <scrollpane id="98d51" binding="consoleTextPane" custom-create="true">
                 <constraints>
                   <grid row="0" column="3" row-span="5" col-span="1" vsize-policy="7" hsize-policy="7" anchor="4" fill="2" indent="0" use-parent-layout="false">
-                    <minimum-size width="500" height="320"/>
+                    <minimum-size width="500" height="-1"/>
                     <maximum-size width="500" height="-1"/>
                   </grid>
                 </constraints>
@@ -72,7 +72,7 @@
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <minimum-size width="250" height="320"/>
+                    <minimum-size width="250" height="-1"/>
                   </grid>
                 </constraints>
                 <properties/>
@@ -164,7 +164,6 @@
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <minimum-size width="-1" height="460"/>
-            <preferred-size width="1514" height="666"/>
           </grid>
         </constraints>
         <properties/>
@@ -273,7 +272,7 @@
             <border type="etched" title="Spielfeld"/>
             <children/>
           </grid>
-          <grid id="2af65" layout-manager="GridLayoutManager" row-count="8" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="2af65" layout-manager="GridLayoutManager" row-count="7" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="2" indent="0" use-parent-layout="false">
@@ -285,7 +284,7 @@
             <children>
               <component id="eaac2" class="javax.swing.JButton" binding="spielzugBeendenButton" custom-create="true" default-binding="true">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Spielzug beenden"/>
@@ -381,17 +380,9 @@
                   </component>
                 </children>
               </grid>
-              <component id="28dfc" class="javax.swing.JButton" binding="soundSwitchButton" custom-create="true">
-                <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Töne ausschalten"/>
-                </properties>
-              </component>
             </children>
           </grid>
-          <grid id="e015b" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="e015b" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="4" fill="2" indent="0" use-parent-layout="false">
@@ -404,7 +395,7 @@
             <children>
               <component id="9b89b" class="javax.swing.JTextArea" binding="informationen" custom-create="true">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
                     <minimum-size width="250" height="50"/>
                     <preferred-size width="350" height="50"/>
                   </grid>
@@ -413,9 +404,17 @@
               </component>
               <vspacer id="d1fbf">
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
+              <component id="140" class="javax.swing.JButton" binding="soundSwitchButton" custom-create="true">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Töne ausschalten"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="d5a76" binding="winnerPanel" custom-create="true" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
