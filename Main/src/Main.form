@@ -30,7 +30,7 @@
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="0" row-span="5" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <minimum-size width="500" height="-1"/>
+                    <minimum-size width="500" height="320"/>
                     <preferred-size width="500" height="-1"/>
                     <maximum-size width="500" height="-1"/>
                   </grid>
@@ -43,7 +43,7 @@
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="1" use-parent-layout="false">
-                    <minimum-size width="500" height="480"/>
+                    <minimum-size width="500" height="320"/>
                   </grid>
                 </constraints>
                 <properties/>
@@ -53,7 +53,7 @@
               <scrollpane id="98d51" binding="consoleTextPane" custom-create="true">
                 <constraints>
                   <grid row="0" column="3" row-span="5" col-span="1" vsize-policy="7" hsize-policy="7" anchor="4" fill="2" indent="0" use-parent-layout="false">
-                    <minimum-size width="500" height="-1"/>
+                    <minimum-size width="500" height="320"/>
                     <maximum-size width="500" height="-1"/>
                   </grid>
                 </constraints>
@@ -72,7 +72,7 @@
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <minimum-size width="250" height="-1"/>
+                    <minimum-size width="250" height="320"/>
                   </grid>
                 </constraints>
                 <properties/>
@@ -164,6 +164,7 @@
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <minimum-size width="-1" height="460"/>
+            <preferred-size width="1514" height="666"/>
           </grid>
         </constraints>
         <properties/>

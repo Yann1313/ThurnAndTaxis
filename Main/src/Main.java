@@ -63,6 +63,7 @@ public class Main extends JFrame {
     private JButton soundSwitchButton;
     private ArrayList<Spieler> spielerListe;
     private Spiel spiel;
+    private boolean soundSchalter = true;
     File spieler1 = readAudioFromPath("Main/src/res/spieler1_wechsel.wav");
     File spieler2 = readAudioFromPath("Main/src/res/spieler2_wechsel.wav");
     File spieler3 = readAudioFromPath("Main/src/res/spieler3_wechsel.wav");
@@ -134,7 +135,8 @@ public class Main extends JFrame {
                 String chosenAmtmann = e.getActionCommand();
                 if (!spiel.getAktuellerSpieler().getAmtmann()) {
                     consoleText.append("Uuund hier kommt der  ");
-                    if (chosenAmtmann.equals("Postillion")) {
+                    if (chosenAmtmann.equals("Postillion") && spiel.getAktuellerSpieler().getHand().size() > 0
+                            ) {
                         spiel.weitereKarteAuspielen();
                         consoleText.append("Postillion\n");
                         consoleText.append("(Mhmm ja die Karten müssen wirklich dreckig sein\n" +
@@ -194,6 +196,7 @@ public class Main extends JFrame {
                                 JPanel gewinnerPanel = new JPanel();
                                 gewinnerPanel.setName("Ergebnis");
                                 gewinnerPanel.setVisible(true);
+                                spieleSound(spielzuEnde);
                                 JOptionPane.showMessageDialog(gewinnerPanel, ergebnis);
                                 System.exit(0);
                             }
@@ -261,16 +264,27 @@ public class Main extends JFrame {
                 }
             }
         });
+        soundSwitchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (soundSchalter) {
+                    soundSchalter = false;
+                } else {
+                    soundSchalter = true;
+                }
+            }
+        });
     }
 
     private void spieleSound(File main) {
-        try {
-            sound = Applet.newAudioClip(main.toURL());
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (soundSchalter) {
+            try {
+                sound = Applet.newAudioClip(main.toURL());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            sound.play();
         }
-
-        sound.play();
     }
 
 
@@ -561,7 +575,7 @@ public class Main extends JFrame {
         auslegekarten = new JPanel();
         consoleText = new JTextArea();
         soundSwitchButton = new JButton();
-        soundSwitchButton.setIcon(speaker);
+        //soundSwitchButton.setIcon(speaker);
         consoleTextPane = new JScrollPane();
         DefaultCaret caret = (DefaultCaret) consoleText.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
